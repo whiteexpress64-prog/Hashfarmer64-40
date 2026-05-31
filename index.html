@@ -148,4 +148,734 @@ body{background:var(--dark);color:var(--text);font-family:'Exo 2',sans-serif;min
 .admin-delete-btn{width:32px;height:32px;border-radius:8px;background:var(--dark3);border:1px solid #3a0000;color:#ff4444;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .admin-badge-indicator{display:inline-block;font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;margin-left:6px;background:var(--accent);color:var(--dark)}
 .admin-badge-indicator.sold-out{background:#ff3a3a;color:#fff}
-.edit-modal{position:fixed;inset:0;background:rgba(0,0,0,0.9​​​​​​​​​​​​​​​​
+.edit-modal{position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:600;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity 0.3s}
+.edit-modal.show{opacity:1;pointer-events:all}
+.edit-modal-content{background:var(--dark2);border-top:2px solid var(--accent);border-radius:24px 24px 0 0;width:100%;max-height:93vh;overflow-y:auto;padding:20px;transform:translateY(30px);transition:transform 0.3s}
+.edit-modal.show .edit-modal-content{transform:translateY(0)}
+.edit-modal-title{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent);letter-spacing:2px;margin-bottom:16px}
+.edit-field{margin-bottom:14px}
+.edit-label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;display:block}
+.edit-input{width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:15px;font-weight:600;outline:none;transition:border-color 0.2s}
+.edit-input:focus{border-color:var(--accent)}
+.edit-select{width:100%;background:var(--dark3);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:15px;font-weight:600;outline:none;appearance:none}
+.edit-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.media-upload-section{margin-bottom:16px}
+.media-upload-label{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;display:block}
+.media-upload-btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+.media-upload-btn{padding:14px 8px;border-radius:12px;background:var(--dark3);border:2px dashed var(--border);color:var(--accent);font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:border-color 0.2s;text-align:center}
+.media-upload-btn:active{border-color:var(--accent);background:rgba(127,255,0,0.06)}
+.media-upload-btn span{font-size:22px;line-height:1}
+.media-upload-btn small{font-size:9px;color:var(--muted);font-family:'Exo 2',sans-serif;font-weight:600;letter-spacing:0.5px}
+#mediaFileInputGallery{display:none}
+#mediaFileInputCamera{display:none}
+.media-preview-list{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.media-preview-item{position:relative;width:72px;height:72px;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:var(--dark3);flex-shrink:0}
+.media-preview-item img{width:100%;height:100%;object-fit:cover}
+.media-preview-item video{width:100%;height:100%;object-fit:cover}
+.media-preview-remove{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(200,0,0,0.9);color:#fff;font-size:10px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:900;z-index:2}
+.media-preview-first{position:absolute;bottom:2px;left:2px;background:var(--accent);color:var(--dark);font-size:7px;font-weight:900;padding:1px 4px;border-radius:3px;letter-spacing:0.5px}
+.media-preview-type{position:absolute;bottom:2px;right:2px;background:rgba(0,0,0,0.6);color:#fff;font-size:8px;padding:1px 4px;border-radius:3px}
+.tiers-admin-section{margin-bottom:14px}
+.tiers-admin-title{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
+.tier-header{display:grid;grid-template-columns:1fr 1fr 32px;gap:6px;margin-bottom:4px}
+.tier-header span{font-size:9px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;padding:0 10px}
+.tiers-admin-list{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.tier-admin-row{display:grid;grid-template-columns:1fr 1fr 32px;gap:6px;align-items:center}
+.tier-admin-input{background:var(--dark3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:14px;font-weight:600;outline:none;width:100%}
+.tier-admin-input:focus{border-color:var(--accent)}
+.tier-remove-btn{width:32px;height:32px;border-radius:8px;background:var(--dark3);border:1px solid #3a0000;color:#ff4444;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tier-add-btn{width:100%;padding:9px;border-radius:10px;background:transparent;border:1px dashed var(--border);color:var(--accent);font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:2px;cursor:pointer}
+.edit-save-btn{width:100%;padding:15px;border-radius:12px;background:var(--accent);color:var(--dark);font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;border:none;cursor:pointer;margin-top:6px}
+.edit-cancel-btn{width:100%;padding:11px;border-radius:12px;background:transparent;color:var(--muted);font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;border:1px solid var(--border);cursor:pointer;margin-top:8px}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--accent);color:var(--dark);font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;padding:10px 20px;border-radius:30px;z-index:900;opacity:0;transition:all 0.3s;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">
+    <span class="logo-main" id="logoMain">HASH FARMER</span>
+    <span class="logo-sub">64/40 · SÉLECTION PREMIUM</span>
+  </div>
+  <button class="cart-btn" id="cartBtn" onclick="openCart()">
+    🛒 <span>Panier</span>
+    <span class="cart-count" id="cartCount" style="display:none">0</span>
+  </button>
+</header>
+
+<div class="page active" id="shopPage">
+  <div class="filters-wrap"><div class="filters-scroll" id="filtersContainer"></div></div>
+  <div class="banner">
+    <div class="banner-tag">🚚 LIVRAISON GRATUITE BAB</div>
+    <h2>SÉLECTION<br>DU MOMENT</h2>
+    <p>BAYONNE · ANGLET · BIARRITZ · CÔTE LANDAISE</p>
+  </div>
+  <div class="section-title" id="sectionTitle">CATALOGUE</div>
+  <div class="products-grid" id="productsGrid"></div>
+</div>
+
+<div class="page" id="contactPage">
+  <div class="contact-page">
+    <div class="contact-hero">
+      <div style="font-size:56px;margin-bottom:10px">📲</div>
+      <h2>CONTACTE-NOUS</h2>
+      <p>LIVRAISON RAPIDE & DISCRÈTE<br>MIMIZAN → SAINT-JEAN-DE-LUZ</p>
+    </div>
+    <div class="info-cards">
+      <div class="info-card"><div class="info-card-icon">🚚</div><div class="info-card-text"><h4>Livraison Gratuite</h4><p>Bayonne · Anglet · Biarritz</p></div></div>
+      <div class="info-card"><div class="info-card-icon">🔒</div><div class="info-card-text"><h4>Paiement Sécurisé</h4><p>Discret & rapide</p></div></div>
+      <div class="info-card"><div class="info-card-icon">⭐</div><div class="info-card-text"><h4>Sélection Premium</h4><p>Produits triés avec soin</p></div></div>
+      <div class="info-card"><div class="info-card-icon">🎁</div><div class="info-card-text"><h4>Offres Fidélité</h4><p>Surprises & concours réguliers</p></div></div>
+    </div>
+    <button class="tg-big-btn" onclick="window.open('https://t.me/hashfarmer64','_blank')">✈️ NOUS CONTACTER SUR TELEGRAM</button>
+  </div>
+</div>
+
+<div class="page" id="adminPage">
+  <div class="admin-page-wrap">
+    <div class="admin-header-bar">
+      <div class="admin-title">⚙️ ADMIN</div>
+      <button class="admin-logout-btn" onclick="adminLogout()">DÉCONNEXION</button>
+    </div>
+    <button class="admin-add-btn" onclick="openEditModal(null)">+ AJOUTER UN PRODUIT</button>
+    <div class="admin-product-list" id="adminProductList"></div>
+  </div>
+</div>
+
+<nav class="bottom-nav">
+  <div class="nav-item active" id="navShop" onclick="switchPage('shop')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    Boutique
+  </div>
+  <div class="nav-item" id="navContact" onclick="switchPage('contact')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+    Contact
+  </div>
+  <div class="nav-item" id="navAdmin" onclick="switchPage('admin')" style="display:none">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    Admin
+  </div>
+</nav>
+
+<div class="overlay" id="overlay" onclick="closeCart()"></div>
+<div class="drawer" id="cartDrawer">
+  <div class="drawer-handle"></div>
+  <div class="drawer-title">🛒 MON PANIER</div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="drawer-footer">
+    <div class="total-row">
+      <span class="total-label">TOTAL</span>
+      <span class="total-amount" id="cartTotal">0€</span>
+    </div>
+    <button class="contact-btn" onclick="sendOrder()">✈️ COMMANDER VIA TELEGRAM</button>
+  </div>
+</div>
+
+<div class="modal" id="productModal" onclick="closeModal(event)">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModalDirect()">✕</button>
+    <div class="modal-media-main" id="modalMediaMain"></div>
+    <div class="modal-media-thumbs" id="modalMediaThumbs"></div>
+    <div class="modal-name" id="modalName"></div>
+    <div class="modal-sub" id="modalSub"></div>
+    <div class="modal-desc" id="modalDesc"></div>
+    <div id="modalTiersSection">
+      <div class="tiers-label">CHOISIR LA QUANTITÉ</div>
+      <table class="modal-tiers-table" id="modalTiersTable">
+        <thead><tr>
+          <th></th>
+          <th>QUANTITÉ</th>
+          <th style="text-align:right">PRIX</th>
+          <th style="text-align:right">€/G</th>
+        </tr></thead>
+        <tbody id="modalTiersBody"></tbody>
+      </table>
+    </div>
+    <button class="modal-add-btn" id="modalAddBtn" disabled>CHOISIR UNE QUANTITÉ</button>
+  </div>
+</div>
+
+<div class="admin-login" id="adminLogin">
+  <div class="admin-login-box">
+    <div style="font-size:36px;margin-bottom:8px">🔐</div>
+    <h2>ACCÈS ADMIN</h2>
+    <p>ENTREZ LE MOT DE PASSE</p>
+    <input class="admin-input" type="password" id="adminPwInput" placeholder="••••••" onkeydown="if(event.key==='Enter')checkAdminPw()">
+    <button class="admin-login-btn" onclick="checkAdminPw()">ENTRER</button>
+    <button class="admin-cancel-btn" onclick="closeAdminLogin()">ANNULER</button>
+  </div>
+</div>
+
+<div class="edit-modal" id="editModal">
+  <div class="edit-modal-content">
+    <div class="edit-modal-title" id="editModalTitle">NOUVEAU PRODUIT</div>
+    <div class="media-upload-section">
+      <label class="media-upload-label">📸 PHOTOS & VIDÉOS</label>
+      <div class="media-upload-btns">
+        <button class="media-upload-btn" onclick="document.getElementById('mediaFileInputGallery').click()">
+          <span>🖼️</span>PELLICULE<small>Photos & vidéos</small>
+        </button>
+        <button class="media-upload-btn" onclick="document.getElementById('mediaFileInputCamera').click()">
+          <span>📷</span>PHOTO<small>Prendre une photo</small>
+        </button>
+      </div>
+      <input type="file" id="mediaFileInputGallery" accept="image/*,video/*" multiple onchange="handleMediaUpload(event)">
+      <input type="file" id="mediaFileInputCamera" accept="image/*" capture="environment" onchange="handleMediaUpload(event)">
+      <div class="media-preview-list" id="mediaPreviewList"></div>
+      <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:0.5px;margin-top:6px">💡 La 1ère image est utilisée comme couverture</div>
+    </div>
+    <div class="edit-field"><label class="edit-label">Nom du produit</label><input class="edit-input" id="editName" placeholder="Ex: Moroccan Gold"></div>
+    <div class="edit-field"><label class="edit-label">Sous-titre</label><input class="edit-input" id="editSub" placeholder="Ex: Résine · Sélection A"></div>
+    <div class="edit-field"><label class="edit-label">Description</label><input class="edit-input" id="editDesc" placeholder="Description courte..."></div>
+    <div class="edit-row">
+      <div class="edit-field"><label class="edit-label">Emoji</label><input class="edit-input" id="editEmoji" placeholder="🟤"></div>
+      <div class="edit-field"><label class="edit-label">Catégorie</label>
+        <select class="edit-select" id="editCat">
+          <option value="resine">Résine</option>
+          <option value="fleur">Fleur</option>
+          <option value="huile">Huile</option>
+        </select>
+      </div>
+    </div>
+    <div class="edit-field"><label class="edit-label">Badge</label>
+      <select class="edit-select" id="editBadge">
+        <option value="">Aucun</option>
+        <option value="NOUVEAU">NOUVEAU</option>
+        <option value="TOP">TOP</option>
+        <option value="PROMO">PROMO</option>
+        <option value="SOLD OUT">SOLD OUT</option>
+      </select>
+    </div>
+    <div class="tiers-admin-section">
+      <div class="tiers-admin-title">PALIERS DE PRIX</div>
+      <div class="tier-header">
+        <span>Quantité</span><span>Prix (€)</span><span></span>
+      </div>
+      <div class="tiers-admin-list" id="tiersAdminList"></div>
+      <button class="tier-add-btn" onclick="addTierRow()">+ AJOUTER UN PALIER</button>
+    </div>
+    <button class="edit-save-btn" onclick="saveProduct()">✅ SAUVEGARDER</button>
+    <button class="edit-cancel-btn" onclick="closeEditModal()">ANNULER</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const ADMIN_PASSWORD = "1234";
+const TELEGRAM_USERNAME = "hashfarmer64";
+const CATEGORIES = [
+  {id:"all",label:"Tout"},
+  {id:"resine",label:"Résine"},
+  {id:"fleur",label:"Fleur"},
+  {id:"huile",label:"Huile"},
+  {id:"promo",label:"⚡ Promos"}
+];
+
+const DEFAULT_PRODUCTS = [
+  {id:1,name:"Moroccan Gold",sub:"Résine · Sélection A",desc:"Résine dorée pressée à froid, arômes terreux et épicés.",emoji:"🟤",cat:"resine",badge:"TOP",medias:[],tiers:[{qty:"5g",price:40},{qty:"10g",price:70},{qty:"20g",price:120},{qty:"50g",price:280}]},
+  {id:2,name:"Green Diamond",sub:"Fleur · Indoor",desc:"Fleur indoor de haute qualité, trichomes abondants, parfum fruité.",emoji:"💚",cat:"fleur",badge:"NOUVEAU",medias:[],tiers:[{qty:"3g",price:30},{qty:"5g",price:45},{qty:"10g",price:80},{qty:"20g",price:150}]},
+  {id:3,name:"Black Label",sub:"Résine · Premium",desc:"Résine noire extraite à la main, goût intense et complexe.",emoji:"⚫",cat:"resine",badge:"",medias:[],tiers:[{qty:"5g",price:50},{qty:"10g",price:90},{qty:"20g",price:160},{qty:"50g",price:380}]},
+  {id:4,name:"Sunset Haze",sub:"Fleur · Greenhouse",desc:"Greenhouse ensoleillé, arômes d'agrumes et de pin.",emoji:"🌿",cat:"fleur",badge:"PROMO",medias:[],tiers:[{qty:"5g",price:35},{qty:"10g",price:60},{qty:"20g",price:110}]},
+  {id:5,name:"Gold Drop",sub:"Huile · Full Spectrum",desc:"Huile full spectrum 10%, extraction CO2.",emoji:"🟡",cat:"huile",badge:"",medias:[],tiers:[{qty:"1 flacon",price:25},{qty:"2 flacons",price:45}]},
+  {id:6,name:"Ice Cream",sub:"Fleur · Indoor",desc:"Indoor premium aux notes crémeuses et vanillées.",emoji:"🍦",cat:"fleur",badge:"TOP",medias:[],tiers:[{qty:"3g",price:35},{qty:"5g",price:55},{qty:"10g",price:100},{qty:"20g",price:180}]},
+  {id:7,name:"Polm Classic",sub:"Résine · Tradition",desc:"Résine traditionnelle pressée à froid, saveurs authentiques.",emoji:"🫓",cat:"resine",badge:"",medias:[],tiers:[{qty:"5g",price:35},{qty:"10g",price:65},{qty:"20g",price:110},{qty:"50g",price:250}]},
+  {id:8,name:"Relax Drop",sub:"Huile · Nuit",desc:"Formule nuit enrichie, extraction douce. Flacon 30ml.",emoji:"🌙",cat:"huile",badge:"NOUVEAU",medias:[],tiers:[{qty:"1 flacon",price:30},{qty:"2 flacons",price:55}]}
+];
+
+let PRODUCTS = loadProducts();
+let cart = {};
+let activeFilter = "all";
+let editingId = null;
+let editTiers = [];
+let editMedias = [];
+let adminUnlocked = false;
+let adminTapCount = 0, adminTapTimer = null;
+let currentModalProductId = null;
+let currentModalTierIndex = null;
+
+function loadProducts(){
+  try{const s=localStorage.getItem("hf_products4");return s?JSON.parse(s):DEFAULT_PRODUCTS;}
+  catch(e){return DEFAULT_PRODUCTS;}
+}
+function saveProducts(){localStorage.setItem("hf_products4",JSON.stringify(PRODUCTS));}
+
+function buildFilters(){
+  const c=document.getElementById("filtersContainer");
+  c.innerHTML="";
+  CATEGORIES.forEach(cat=>{
+    const chip=document.createElement("button");
+    chip.className="filter-chip"+(cat.id===activeFilter?" active":"");
+    chip.textContent=cat.label;
+    chip.onclick=()=>setFilter(cat.id);
+    c.appendChild(chip);
+  });
+}
+function setFilter(id){
+  activeFilter=id;
+  document.querySelectorAll(".filter-chip").forEach((el,i)=>el.classList.toggle("active",CATEGORIES[i].id===id));
+  document.getElementById("sectionTitle").textContent=id==="all"?"CATALOGUE":CATEGORIES.find(c=>c.id===id)?.label.toUpperCase();
+  renderProducts();
+}
+
+function extractGrams(qtyStr){
+  const m=String(qtyStr).match(/(\d+(?:\.\d+)?)\s*g/i);
+  return m?parseFloat(m[1]):null;
+}
+function unitPrice(tier){
+  const g=extractGrams(tier.qty);
+  if(!g||!tier.price)return null;
+  return(tier.price/g).toFixed(1);
+}
+
+function getFirstMedia(p){
+  if(p.medias&&p.medias.length)return p.medias[0];
+  return null;
+}
+
+function renderProducts(){
+  const grid=document.getElementById("productsGrid");
+  grid.innerHTML="";
+  const filtered=activeFilter==="all"?PRODUCTS
+    :activeFilter==="promo"?PRODUCTS.filter(p=>p.badge==="PROMO")
+    :PRODUCTS.filter(p=>p.cat===activeFilter);
+  if(!filtered.length){
+    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--muted);font-weight:700;letter-spacing:1px;font-size:13px">AUCUN PRODUIT</div>`;
+    return;
+  }
+  filtered.forEach((p,i)=>{
+    const isSoldOut=p.badge==="SOLD OUT";
+    const media=getFirstMedia(p);
+    let mediaHtml="";
+    if(media){
+      if(media.type==='image')mediaHtml=`<img src="${media.data}" alt="${p.name}">`;
+      else mediaHtml=`<video src="${media.data}" muted playsinline loop autoplay style="width:100%;height:100%;object-fit:cover"></video>`;
+    }else{
+      mediaHtml=`<span>${p.emoji}</span>`;
+    }
+    let tiersHtml="";
+    if(p.tiers&&p.tiers.length){
+      tiersHtml=`<div class="price-tiers-grid">`;
+      p.tiers.forEach((tier,idx)=>{
+        tiersHtml+=`<div class="price-tier-pill${isSoldOut?' sold-out-pill':''}" onclick="${isSoldOut?'':'`quickAddTier(event,${p.id},${idx})`'}">
+          <span class="price-tier-qty">${tier.qty}</span>
+          <span class="price-tier-price">${tier.price}€</span>
+        </div>`;
+      });
+      tiersHtml+=`</div>`;
+    }
+    const card=document.createElement("div");
+    card.className="product-card";
+    card.style.animationDelay=(i*0.06)+"s";
+    card.innerHTML=`
+      <div class="product-img" onclick="openModal(${p.id})">
+        ${mediaHtml}
+        ${p.badge?`<div class="product-badge ${isSoldOut?'sold-out':''}">${p.badge}</div>`:""}
+      </div>
+      <div class="product-info">
+        <div class="product-name">${p.name}</div>
+        <div class="product-sub">${p.sub}</div>
+        ${tiersHtml}
+        <div class="product-footer">
+          <button class="voir-btn" onclick="openModal(${p.id})">VOIR DÉTAILS ›</button>
+          ${isSoldOut
+            ?`<button class="add-btn" style="background:var(--dark3);color:var(--muted);cursor:not-allowed;font-size:9px;width:auto;padding:0 6px;font-family:'Bebas Neue',sans-serif;letter-spacing:0.5px">ÉPUISÉ</button>`
+            :`<button class="add-btn" onclick="openModal(${p.id})">+</button>`
+          }
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function quickAddTier(event,productId,tierIndex){
+  event.stopPropagation();
+  addToCart(productId,tierIndex);
+}
+
+function openModal(id){
+  const p=PRODUCTS.find(p=>p.id===id);
+  if(!p)return;
+  currentModalProductId=id;
+  currentModalTierIndex=null;
+  const main=document.getElementById("modalMediaMain");
+  const thumbs=document.getElementById("modalMediaThumbs");
+  main.innerHTML="";thumbs.innerHTML="";
+  const allMedias=p.medias&&p.medias.length?p.medias:null;
+  function showMedia(idx){
+    main.innerHTML="";
+    thumbs.querySelectorAll(".media-thumb").forEach((t,i)=>t.classList.toggle("active",i===idx));
+    if(!allMedias){main.innerHTML=`<span class="emoji-big">${p.emoji}</span>`;return;}
+    const m=allMedias[idx];
+    if(m.type==='image')main.innerHTML=`<img src="${m.data}" alt="${p.name}">`;
+    else main.innerHTML=`<video src="${m.data}" controls autoplay playsinline style="width:100%;height:100%;object-fit:cover"></video>`;
+  }
+  if(allMedias){
+    allMedias.forEach((m,idx)=>{
+      const thumb=document.createElement("div");
+      thumb.className="media-thumb"+(idx===0?" active":"");
+      if(m.type==='image')thumb.innerHTML=`<img src="${m.data}">`;
+      else thumb.innerHTML=`<video src="${m.data}" muted></video>`;
+      thumb.onclick=()=>showMedia(idx);
+      thumbs.appendChild(thumb);
+    });
+    thumbs.style.display=allMedias.length>1?"flex":"none";
+  }else{
+    thumbs.style.display="none";
+  }
+  showMedia(0);
+  document.getElementById("modalName").textContent=p.name;
+  document.getElementById("modalSub").textContent=p.sub;
+  document.getElementById("modalDesc").textContent=p.desc;
+  const tbody=document.getElementById("modalTiersBody");
+  tbody.innerHTML="";
+  const isSoldOut=p.badge==="SOLD OUT";
+  if(isSoldOut){
+    document.getElementById("modalTiersSection").style.display="none";
+    const btn=document.getElementById("modalAddBtn");
+    btn.textContent="PRODUIT ÉPUISÉ";btn.disabled=true;
+  }else if(p.tiers&&p.tiers.length){
+    document.getElementById("modalTiersSection").style.display="block";
+    p.tiers.forEach((tier,idx)=>{
+      const up=unitPrice(tier);
+      const tr=document.createElement("tr");
+      tr.className="tier-row";
+      tr.innerHTML=`
+        <td><div class="tier-select-radio" id="radio_${idx}"></div></td>
+        <td class="tier-qty-cell">${tier.qty}</td>
+        <td class="tier-price-cell">${tier.price}€</td>
+        <td class="tier-unit-cell">${up?up+'€/g':'—'}</td>`;
+      tr.onclick=()=>selectTier(idx);
+      tbody.appendChild(tr);
+    });
+    const addBtn=document.getElementById("modalAddBtn");
+    addBtn.textContent="CHOISIR UNE QUANTITÉ";addBtn.disabled=true;
+  }else{
+    document.getElementById("modalTiersSection").style.display="none";
+    document.getElementById("modalAddBtn").textContent="AUCUN PALIER";
+    document.getElementById("modalAddBtn").disabled=true;
+  }
+  document.getElementById("productModal").classList.add("show");
+}
+
+function selectTier(idx){
+  currentModalTierIndex=idx;
+  document.querySelectorAll("#modalTiersBody .tier-row").forEach((row,i)=>{
+    row.classList.toggle("selected",i===idx);
+    const radio=row.querySelector(".tier-select-radio");
+    if(radio)radio.classList.toggle("checked",i===idx);
+  });
+  const p=PRODUCTS.find(p=>p.id===currentModalProductId);
+  const tier=p.tiers[idx];
+  const addBtn=document.getElementById("modalAddBtn");
+  addBtn.textContent=`+ AJOUTER — ${tier.qty} · ${tier.price}€`;
+  addBtn.disabled=false;
+  addBtn.onclick=()=>{addToCart(currentModalProductId,idx);closeModalDirect();};
+}
+
+function closeModal(e){if(e.target===document.getElementById("productModal"))closeModalDirect();}
+function closeModalDirect(){document.getElementById("productModal").classList.remove("show");}
+
+function addToCart(productId,tierIndex){
+  const p=PRODUCTS.find(p=>p.id===productId);
+  if(!p)return;
+  const tier=p.tiers[tierIndex];
+  const key=`${productId}_${tierIndex}`;
+  if(!cart[key])cart[key]={productId,tierIndex,qty:0};
+  cart[key].qty++;
+  updateCartUI();
+  showToast(`${p.emoji} ${p.name} ${tier.qty} ajouté !`);
+}
+function updateCartUI(){
+  const total=Object.values(cart).reduce((s,v)=>s+v.qty,0);
+  const countEl=document.getElementById("cartCount");
+  countEl.textContent=total;
+  countEl.style.display=total>0?"flex":"none";
+  document.getElementById("cartBtn").classList.toggle("has-items",total>0);
+}
+function openCart(){
+  document.getElementById("cartDrawer").classList.add("open");
+  document.getElementById("overlay").classList.add("show");
+  renderCart();
+}
+function closeCart(){
+  document.getElementById("cartDrawer").classList.remove("open");
+  document.getElementById("overlay").classList.remove("show");
+}
+function renderCart(){
+  const container=document.getElementById("cartItems");
+  const entries=Object.entries(cart).filter(([,v])=>v.qty>0);
+  if(!entries.length){
+    container.innerHTML=`<div class="cart-empty"><div class="cart-empty-icon">🛒</div><p>TON PANIER EST VIDE</p></div>`;
+    document.getElementById("cartTotal").textContent="0€";return;
+  }
+  let html="",total=0;
+  entries.forEach(([key,item])=>{
+    const p=PRODUCTS.find(p=>p.id===item.productId);
+    if(!p)return;
+    const tier=p.tiers[item.tierIndex];
+    const sub=tier.price*item.qty;
+    total+=sub;
+    const firstMedia=getFirstMedia(p);
+    const iconHtml=firstMedia&&firstMedia.type==='image'
+      ?`<img src="${firstMedia.data}" alt="${p.name}">`
+      :`<span style="font-size:22px">${p.emoji}</span>`;
+    html+=`
+      <div class="cart-item">
+        <div class="cart-item-icon">${iconHtml}</div>
+        <div class="cart-item-info">
+          <div class="cart-item-name">${p.name}</div>
+          <div class="cart-item-tier">${tier.qty}</div>
+          <div class="cart-item-price">${sub}€</div>
+        </div>
+        <div class="cart-item-qty">
+          <button class="qty-btn" onclick="changeQty('${key}',-1)">−</button>
+          <span class="qty-val">${item.qty}</span>
+          <button class="qty-btn" onclick="changeQty('${key}',+1)">+</button>
+        </div>
+      </div>`;
+  });
+  container.innerHTML=html;
+  document.getElementById("cartTotal").textContent=total+"€";
+}
+function changeQty(key,delta){
+  if(!cart[key])return;
+  cart[key].qty=Math.max(0,cart[key].qty+delta);
+  if(cart[key].qty===0)delete cart[key];
+  updateCartUI();renderCart();
+}
+function buildOrderMessage(){
+  const lines=Object.values(cart).filter(v=>v.qty>0).map(item=>{
+    const p=PRODUCTS.find(p=>p.id===item.productId);
+    const tier=p.tiers[item.tierIndex];
+    return`• ${p.name} ${tier.qty} × ${item.qty} (${tier.price*item.qty}€)`;
+  });
+  const total=Object.values(cart).filter(v=>v.qty>0).reduce((s,item)=>{
+    const p=PRODUCTS.find(p=>p.id===item.productId);
+    return s+p.tiers[item.tierIndex].price*item.qty;
+  },0);
+  return encodeURIComponent(`🌿 COMMANDE HASH FARMER\n\n${lines.join("\n")}\n\n💰 Total : ${total}€\n\nLivraison souhaitée : `);
+}
+function sendOrder(){
+  if(!Object.keys(cart).length){showToast("⚠️ Panier vide !");return;}
+  window.open(`https://t.me/${TELEGRAM_USERNAME}?text=${buildOrderMessage()}`,"_blank");
+}
+
+function handleMediaUpload(event){
+  const files=Array.from(event.target.files);
+  if(!files.length)return;
+  let pending=0;
+  files.forEach(file=>{
+    const isVideo=file.type.startsWith('video/');
+    const isImage=file.type.startsWith('image/');
+    if(!isVideo&&!isImage)return;
+    pending++;
+    if(isImage){
+      const img=new Image();
+      const url=URL.createObjectURL(file);
+      img.onload=()=>{
+        const canvas=document.createElement('canvas');
+        const MAX=1200;
+        let w=img.width,h=img.height;
+        if(w>MAX){h=Math.round(h*MAX/w);w=MAX;}
+        if(h>MAX){w=Math.round(w*MAX/h);h=MAX;}
+        canvas.width=w;canvas.height=h;
+        canvas.getContext('2d').drawImage(img,0,0,w,h);
+        const data=canvas.toDataURL('image/jpeg',0.82);
+        URL.revokeObjectURL(url);
+        editMedias.push({type:'image',data});
+        pending--;
+        if(pending===0)renderMediaPreviews();
+      };
+      img.src=url;
+    }else{
+      const reader=new FileReader();
+      reader.onload=(e)=>{
+        editMedias.push({type:'video',data:e.target.result});
+        pending--;
+        if(pending===0)renderMediaPreviews();
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+  event.target.value="";
+}
+
+function renderMediaPreviews(){
+  const list=document.getElementById("mediaPreviewList");
+  list.innerHTML="";
+  editMedias.forEach((m,idx)=>{
+    const item=document.createElement("div");
+    item.className="media-preview-item";
+    if(m.type==='image')item.innerHTML=`<img src="${m.data}">`;
+    else item.innerHTML=`<video src="${m.data}" muted playsinline></video>`;
+    if(idx===0)item.innerHTML+=`<span class="media-preview-first">COVER</span>`;
+    item.innerHTML+=`<span class="media-preview-type">${m.type==='video'?'▶':'🖼'}</span>`;
+    item.innerHTML+=`<button class="media-preview-remove" onclick="removeMedia(${idx})">✕</button>`;
+    list.appendChild(item);
+  });
+}
+function removeMedia(idx){editMedias.splice(idx,1);renderMediaPreviews();}
+
+document.getElementById("logoMain").addEventListener("click",triggerAdmin);
+function triggerAdmin(){
+  adminTapCount++;
+  clearTimeout(adminTapTimer);
+  adminTapTimer=setTimeout(()=>{adminTapCount=0;},2000);
+  if(adminTapCount>=5){
+    adminTapCount=0;
+    if(adminUnlocked){switchPage('admin');}
+    else{document.getElementById("adminLogin").classList.add("show");setTimeout(()=>document.getElementById("adminPwInput").focus(),300);}
+  }
+}
+function checkAdminPw(){
+  const val=document.getElementById("adminPwInput").value;
+  if(val===ADMIN_PASSWORD){
+    adminUnlocked=true;
+    document.getElementById("adminLogin").classList.remove("show");
+    document.getElementById("adminPwInput").value="";
+    document.getElementById("navAdmin").style.display="flex";
+    switchPage('admin');renderAdminList();
+    showToast("✅ Accès admin accordé !");
+  }else{
+    document.getElementById("adminPwInput").value="";
+    showToast("❌ Mot de passe incorrect");
+    document.getElementById("adminPwInput").style.borderColor="#ff3a3a";
+    setTimeout(()=>document.getElementById("adminPwInput").style.borderColor="var(--border)",1000);
+  }
+}
+function closeAdminLogin(){document.getElementById("adminLogin").classList.remove("show");document.getElementById("adminPwInput").value="";}
+function adminLogout(){adminUnlocked=false;document.getElementById("navAdmin").style.display="none";switchPage('shop');showToast("👋 Déconnecté");}
+
+function renderAdminList(){
+  const list=document.getElementById("adminProductList");
+  list.innerHTML="";
+  PRODUCTS.forEach(p=>{
+    const tiersText=p.tiers&&p.tiers.length?p.tiers.map(t=>`${t.qty}·${t.price}€`).join(" / "):"Aucun palier";
+    const firstMedia=getFirstMedia(p);
+    const thumbHtml=firstMedia&&firstMedia.type==='image'
+      ?`<img src="${firstMedia.data}" alt="${p.name}">`
+      :`<span style="font-size:22px">${p.emoji}</span>`;
+    const item=document.createElement("div");
+    item.className="admin-product-item";
+    item.innerHTML=`
+      <div class="admin-product-thumb">${thumbHtml}</div>
+      <div class="admin-product-info">
+        <div class="admin-product-name">${p.name}${p.badge?`<span class="admin-badge-indicator ${p.badge==='SOLD OUT'?'sold-out':''}">${p.badge}</span>`:""}</div>
+        <div class="admin-product-details">${tiersText} · ${p.medias?p.medias.length:0} média(s)</div>
+      </div>
+      <div class="admin-product-actions">
+        <button class="admin-edit-btn" onclick="openEditModal(${p.id})">✏️</button>
+        <button class="admin-delete-btn" onclick="deleteProduct(${p.id})">🗑️</button>
+      </div>`;
+    list.appendChild(item);
+  });
+}
+function deleteProduct(id){
+  if(!confirm("Supprimer ce produit ?"))return;
+  PRODUCTS=PRODUCTS.filter(p=>p.id!==id);
+  saveProducts();renderAdminList();renderProducts();
+  showToast("🗑️ Produit supprimé");
+}
+
+function openEditModal(id){
+  editingId=id;
+  document.getElementById("editModalTitle").textContent=id?"MODIFIER PRODUIT":"NOUVEAU PRODUIT";
+  if(id){
+    const p=PRODUCTS.find(p=>p.id===id);
+    document.getElementById("editName").value=p.name;
+    document.getElementById("editSub").value=p.sub;
+    document.getElementById("editDesc").value=p.desc;
+    document.getElementById("editEmoji").value=p.emoji;
+    document.getElementById("editCat").value=p.cat;
+    document.getElementById("editBadge").value=p.badge;
+    editTiers=p.tiers?p.tiers.map(t=>({...t})):[];
+    editMedias=p.medias?p.medias.map(m=>({...m})):[];
+  }else{
+    document.getElementById("editName").value="";
+    document.getElementById("editSub").value="";
+    document.getElementById("editDesc").value="";
+    document.getElementById("editEmoji").value="🌿";
+    document.getElementById("editCat").value="resine";
+    document.getElementById("editBadge").value="";
+    editTiers=[{qty:"5g",price:40},{qty:"10g",price:70},{qty:"20g",price:120}];
+    editMedias=[];
+  }
+  renderTiersAdmin();
+  renderMediaPreviews();
+  document.getElementById("editModal").classList.add("show");
+}
+function renderTiersAdmin(){
+  const list=document.getElementById("tiersAdminList");
+  list.innerHTML="";
+  editTiers.forEach((tier,idx)=>{
+    const row=document.createElement("div");
+    row.className="tier-admin-row";
+    row.innerHTML=`
+      <input class="tier-admin-input" placeholder="ex: 5g" value="${tier.qty}" oninput="editTiers[${idx}].qty=this.value">
+      <input class="tier-admin-input" type="number" placeholder="ex: 40" value="${tier.price}" oninput="editTiers[${idx}].price=parseFloat(this.value)||0">
+      <button class="tier-remove-btn" onclick="removeTierRow(${idx})">✕</button>`;
+    list.appendChild(row);
+  });
+}
+function addTierRow(){
+  editTiers.push({qty:"",price:0});
+  renderTiersAdmin();
+  setTimeout(()=>{const c=document.querySelector(".edit-modal-content");c.scrollTop=c.scrollHeight;},50);
+}
+function removeTierRow(idx){editTiers.splice(idx,1);renderTiersAdmin();}
+function closeEditModal(){document.getElementById("editModal").classList.remove("show");editingId=null;editTiers=[];editMedias=[];}
+
+function saveProduct(){
+  const name=document.getElementById("editName").value.trim();
+  if(!name){showToast("⚠️ Nom obligatoire");return;}
+  const rows=document.querySelectorAll("#tiersAdminList .tier-admin-row");
+  const tiers=[];
+  rows.forEach(row=>{
+    const inputs=row.querySelectorAll("input");
+    const qty=inputs[0].value.trim();
+    const price=parseFloat(inputs[1].value)||0;
+    if(qty)tiers.push({qty,price});
+  });
+  if(!tiers.length){showToast("⚠️ Ajoute au moins un palier");return;}
+  const data={
+    name,
+    sub:document.getElementById("editSub").value.trim(),
+    desc:document.getElementById("editDesc").value.trim(),
+    emoji:document.getElementById("editEmoji").value.trim()||"🌿",
+    cat:document.getElementById("editCat").value,
+    badge:document.getElementById("editBadge").value,
+    medias:[...editMedias],
+    tiers
+  };
+  if(editingId){
+    const idx=PRODUCTS.findIndex(p=>p.id===editingId);
+    PRODUCTS[idx]={...PRODUCTS[idx],...data};
+    showToast("✅ Produit modifié !");
+  }else{
+    const newId=Math.max(0,...PRODUCTS.map(p=>p.id))+1;
+    PRODUCTS.push({id:newId,...data});
+    showToast("✅ Produit ajouté !");
+  }
+  saveProducts();closeEditModal();renderAdminList();renderProducts();
+}
+
+function switchPage(page){
+  ["shop","contact","admin"].forEach(p=>document.getElementById(p+"Page").classList.toggle("active",p===page));
+  document.getElementById("navShop").classList.toggle("active",page==="shop");
+  document.getElementById("navContact").classList.toggle("active",page==="contact");
+  document.getElementById("navAdmin").classList.toggle("active",page==="admin");
+  if(page==="admin")renderAdminList();
+}
+function showToast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg;t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2200);
+}
+
+buildFilters();
+renderProducts();
+</script>
+</body>
+</html>
