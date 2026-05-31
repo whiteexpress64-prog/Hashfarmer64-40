@@ -192,12 +192,10 @@ body{background:var(--dark);color:var(--text);font-family:'Exo 2',sans-serif;min
 </style>
 </head>
 <body>
-
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-spinner"></div>
   <div class="loading-text">CHARGEMENT...</div>
 </div>
-
 <header class="header">
   <div class="logo">
     <span class="logo-main" id="logoMain">HASH FARMER</span>
@@ -208,7 +206,6 @@ body{background:var(--dark);color:var(--text);font-family:'Exo 2',sans-serif;min
     <span class="cart-count" id="cartCount" style="display:none">0</span>
   </button>
 </header>
-
 <div class="page active" id="shopPage">
   <div class="filters-wrap"><div class="filters-scroll" id="filtersContainer"></div></div>
   <div class="banner">
@@ -219,7 +216,6 @@ body{background:var(--dark);color:var(--text);font-family:'Exo 2',sans-serif;min
   <div class="section-title" id="sectionTitle">CATALOGUE</div>
   <div class="products-grid" id="productsGrid"></div>
 </div>
-
 <div class="page" id="contactPage">
   <div class="contact-page">
     <div class="contact-hero">
@@ -236,7 +232,6 @@ body{background:var(--dark);color:var(--text);font-family:'Exo 2',sans-serif;min
     <button class="tg-big-btn" onclick="window.open('https://t.me/hashfarmer64','_blank')">✈️ NOUS CONTACTER SUR TELEGRAM</button>
   </div>
 </div>
-
 <div class="page" id="adminPage">
   <div class="admin-page-wrap">
     <div class="admin-header-bar">
@@ -247,7 +242,6 @@ body{background:var(--dark);color:var(--text);font-family:'Exo 2',sans-serif;min
     <div class="admin-product-list" id="adminProductList"></div>
   </div>
 </div>
-
 <nav class="bottom-nav">
   <div class="nav-item active" id="navShop" onclick="switchPage('shop')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
@@ -262,7 +256,6 @@ body{background:var(--dark);color:var(--text);font-family:'Exo 2',sans-serif;min
     Admin
   </div>
 </nav>
-
 <div class="overlay" id="overlay" onclick="closeCart()"></div>
 <div class="drawer" id="cartDrawer">
   <div class="drawer-handle"></div>
@@ -276,7 +269,6 @@ body{background:var(--dark);color:var(--text);font-family:'Exo 2',sans-serif;min
     <button class="contact-btn" onclick="sendOrder()">✈️ COMMANDER VIA TELEGRAM</button>
   </div>
 </div>
-
 <div class="modal" id="productModal" onclick="closeModal(event)">
   <div class="modal-content">
     <button class="modal-close" onclick="closeModalDirect()">✕</button>
@@ -299,7 +291,6 @@ body{background:var(--dark);color:var(--text);font-family:'Exo 2',sans-serif;min
     <button class="modal-add-btn" id="modalAddBtn" disabled>CHOISIR UNE QUANTITÉ</button>
   </div>
 </div>
-
 <div class="admin-login" id="adminLogin">
   <div class="admin-login-box">
     <div style="font-size:36px;margin-bottom:8px">🔐</div>
@@ -310,7 +301,6 @@ body{background:var(--dark);color:var(--text);font-family:'Exo 2',sans-serif;min
     <button class="admin-cancel-btn" onclick="closeAdminLogin()">ANNULER</button>
   </div>
 </div>
-
 <div class="edit-modal" id="editModal">
   <div class="edit-modal-content">
     <div class="edit-modal-title" id="editModalTitle">NOUVEAU PRODUIT</div>
@@ -363,18 +353,12 @@ body{background:var(--dark);color:var(--text);font-family:'Exo 2',sans-serif;min
     <button class="edit-cancel-btn" onclick="closeEditModal()">ANNULER</button>
   </div>
 </div>
-
 <div class="toast" id="toast"></div>
-
 <script>
-// ═══════════════════════════════════════════════════════════════════
-// CONFIG SUPABASE
-// ═══════════════════════════════════════════════════════════════════
 const SUPABASE_URL = "https://pztimswsqglsmnrfixmz.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6dGltc3dzcWdsc21ucmZpeG16Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyNDg3NTAsImV4cCI6MjA5NTgyNDc1MH0.akWWEn2KXu6Nzyxb5gT5mopKvx9u4G5wZZ8GVSZGaRM";
 const TABLE = "products";
 const BUCKET = "media";
-
 const ADMIN_PASSWORD = "1234";
 const TELEGRAM_USERNAME = "hashfarmer64";
 const CATEGORIES = [
@@ -384,10 +368,6 @@ const CATEGORIES = [
   {id:"huile",label:"Huile"},
   {id:"promo",label:"⚡ Promos"}
 ];
-
-// ═══════════════════════════════════════════════════════════════════
-// SUPABASE API HELPERS
-// ═══════════════════════════════════════════════════════════════════
 async function sbFetch(path, options = {}) {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     ...options,
@@ -399,105 +379,54 @@ async function sbFetch(path, options = {}) {
       ...(options.headers || {})
     }
   });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(err);
-  }
+  if (!res.ok) { const err = await res.text(); throw new Error(err); }
   const text = await res.text();
   return text ? JSON.parse(text) : null;
 }
-
-async function getProducts() {
-  return await sbFetch(`${TABLE}?select=*&order=created_at.asc`);
-}
-
+async function getProducts() { return await sbFetch(`${TABLE}?select=*&order=created_at.asc`); }
 async function insertProduct(data) {
-  const result = await sbFetch(TABLE, {
-    method: "POST",
-    body: JSON.stringify(data)
-  });
+  const result = await sbFetch(TABLE, { method: "POST", body: JSON.stringify(data) });
   return Array.isArray(result) ? result[0] : result;
 }
-
 async function updateProduct(id, data) {
-  const result = await sbFetch(`${TABLE}?id=eq.${id}`, {
-    method: "PATCH",
-    body: JSON.stringify(data)
-  });
+  const result = await sbFetch(`${TABLE}?id=eq.${id}`, { method: "PATCH", body: JSON.stringify(data) });
   return Array.isArray(result) ? result[0] : result;
 }
-
-async function deleteProductDB(id) {
-  await sbFetch(`${TABLE}?id=eq.${id}`, { method: "DELETE" });
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// SUPABASE STORAGE — upload image, returns public URL
-// ═══════════════════════════════════════════════════════════════════
+async function deleteProductDB(id) { await sbFetch(`${TABLE}?id=eq.${id}`, { method: "DELETE" }); }
 async function uploadImage(base64Data, filename) {
-  // Convert base64 to blob
   const res = await fetch(base64Data);
   const blob = await res.blob();
-
-  const uploadRes = await fetch(
-    `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${filename}`,
-    {
-      method: "POST",
-      headers: {
-        "apikey": SUPABASE_KEY,
-        "Authorization": `Bearer ${SUPABASE_KEY}`,
-        "Content-Type": blob.type || "image/jpeg",
-        "x-upsert": "true"
-      },
-      body: blob
-    }
-  );
-
-  if (!uploadRes.ok) {
-    const err = await uploadRes.text();
-    throw new Error("Upload failed: " + err);
-  }
-
-  // Return public URL
+  const uploadRes = await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${filename}`, {
+    method: "POST",
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": `Bearer ${SUPABASE_KEY}`,
+      "Content-Type": blob.type || "image/jpeg",
+      "x-upsert": "true"
+    },
+    body: blob
+  });
+  if (!uploadRes.ok) { const err = await uploadRes.text(); throw new Error("Upload failed: " + err); }
   return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${filename}`;
 }
-
 async function deleteImage(url) {
   try {
     const filename = url.split(`/object/public/${BUCKET}/`)[1];
     if (!filename) return;
     await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${filename}`, {
       method: "DELETE",
-      headers: {
-        "apikey": SUPABASE_KEY,
-        "Authorization": `Bearer ${SUPABASE_KEY}`
-      }
+      headers: { "apikey": SUPABASE_KEY, "Authorization": `Bearer ${SUPABASE_KEY}` }
     });
   } catch(e) { console.warn("Delete image failed:", e); }
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════════════════════════
-let PRODUCTS = [];
-let cart = {};
-let activeFilter = "all";
-let editingId = null;
-let editMedias = []; // { url: string|null, data: base64|null, isNew: bool }
-let editTiers = [];
-let adminUnlocked = false;
+let PRODUCTS = [], cart = {}, activeFilter = "all", editingId = null;
+let editMedias = [], editTiers = [], adminUnlocked = false;
 let adminTapCount = 0, adminTapTimer = null;
-let currentModalProductId = null;
-let currentModalTierIndex = null;
-
-// ═══════════════════════════════════════════════════════════════════
-// STARTUP
-// ═══════════════════════════════════════════════════════════════════
+let currentModalProductId = null, currentModalTierIndex = null;
 async function init() {
   try {
     PRODUCTS = await getProducts();
-    buildFilters();
-    renderProducts();
+    buildFilters(); renderProducts();
     document.getElementById("loadingOverlay").classList.add("hidden");
   } catch(e) {
     console.error("Init error:", e);
@@ -505,10 +434,6 @@ async function init() {
     showToast("⚠️ Erreur de connexion Supabase");
   }
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// FILTERS
-// ═══════════════════════════════════════════════════════════════════
 function buildFilters() {
   const c = document.getElementById("filtersContainer");
   c.innerHTML = "";
@@ -520,126 +445,53 @@ function buildFilters() {
     c.appendChild(chip);
   });
 }
-
 function setFilter(id) {
   activeFilter = id;
-  document.querySelectorAll(".filter-chip").forEach((el, i) =>
-    el.classList.toggle("active", CATEGORIES[i].id === id)
-  );
-  document.getElementById("sectionTitle").textContent =
-    id === "all" ? "CATALOGUE" : CATEGORIES.find(c => c.id === id)?.label.toUpperCase();
+  document.querySelectorAll(".filter-chip").forEach((el, i) => el.classList.toggle("active", CATEGORIES[i].id === id));
+  document.getElementById("sectionTitle").textContent = id === "all" ? "CATALOGUE" : CATEGORIES.find(c => c.id === id)?.label.toUpperCase();
   renderProducts();
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// HELPERS
-// ═══════════════════════════════════════════════════════════════════
-function extractGrams(qtyStr) {
-  const m = String(qtyStr).match(/(\d+(?:\.\d+)?)\s*g/i);
-  return m ? parseFloat(m[1]) : null;
-}
-function unitPrice(tier) {
-  const g = extractGrams(tier.qty);
-  if (!g || !tier.price) return null;
-  return (tier.price / g).toFixed(1);
-}
-function getFirstImageUrl(p) {
-  const urls = p.media_urls || [];
-  return urls.length ? urls[0] : null;
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// RENDER PRODUCTS
-// ═══════════════════════════════════════════════════════════════════
+function extractGrams(qtyStr) { const m = String(qtyStr).match(/(\d+(?:\.\d+)?)\s*g/i); return m ? parseFloat(m[1]) : null; }
+function unitPrice(tier) { const g = extractGrams(tier.qty); if (!g || !tier.price) return null; return (tier.price / g).toFixed(1); }
+function getFirstImageUrl(p) { const urls = p.media_urls || []; return urls.length ? urls[0] : null; }
 function renderProducts() {
   const grid = document.getElementById("productsGrid");
   grid.innerHTML = "";
-  const filtered = activeFilter === "all" ? PRODUCTS
-    : activeFilter === "promo" ? PRODUCTS.filter(p => p.badge === "PROMO")
-    : PRODUCTS.filter(p => p.cat === activeFilter);
-
-  if (!filtered.length) {
-    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--muted);font-weight:700;letter-spacing:1px;font-size:13px">AUCUN PRODUIT</div>`;
-    return;
-  }
-
+  const filtered = activeFilter === "all" ? PRODUCTS : activeFilter === "promo" ? PRODUCTS.filter(p => p.badge === "PROMO") : PRODUCTS.filter(p => p.cat === activeFilter);
+  if (!filtered.length) { grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:40px 20px;color:var(--muted);font-weight:700;letter-spacing:1px;font-size:13px">AUCUN PRODUIT</div>`; return; }
   filtered.forEach((p, i) => {
     const isSoldOut = p.badge === "SOLD OUT";
     const firstUrl = getFirstImageUrl(p);
-    const mediaHtml = firstUrl
-      ? `<img src="${firstUrl}" alt="${p.name}">`
-      : `<span>${p.emoji}</span>`;
-
+    const mediaHtml = firstUrl ? `<img src="${firstUrl}" alt="${p.name}">` : `<span>${p.emoji}</span>`;
     const tiers = p.tiers || [];
     let tiersHtml = "";
     if (tiers.length) {
       tiersHtml = `<div class="price-tiers-grid">`;
-      tiers.forEach((tier, idx) => {
-        tiersHtml += `<div class="price-tier-pill${isSoldOut ? ' sold-out-pill' : ''}"
-          ${isSoldOut ? '' : `onclick="quickAddTier(event,${p.id},${idx})"`}>
-          <span class="price-tier-qty">${tier.qty}</span>
-          <span class="price-tier-price">${tier.price}€</span>
-        </div>`;
-      });
+      tiers.forEach((tier, idx) => { tiersHtml += `<div class="price-tier-pill${isSoldOut ? ' sold-out-pill' : ''}" ${isSoldOut ? '' : `onclick="quickAddTier(event,${p.id},${idx})"`}><span class="price-tier-qty">${tier.qty}</span><span class="price-tier-price">${tier.price}€</span></div>`; });
       tiersHtml += `</div>`;
     }
-
     const card = document.createElement("div");
     card.className = "product-card";
     card.style.animationDelay = (i * 0.06) + "s";
-    card.innerHTML = `
-      <div class="product-img" onclick="openModal(${p.id})">
-        ${mediaHtml}
-        ${p.badge ? `<div class="product-badge ${isSoldOut ? 'sold-out' : ''}">${p.badge}</div>` : ""}
-      </div>
-      <div class="product-info">
-        <div class="product-name">${p.name}</div>
-        <div class="product-sub">${p.sub || ''}</div>
-        ${tiersHtml}
-        <div class="product-footer">
-          <button class="voir-btn" onclick="openModal(${p.id})">VOIR DÉTAILS ›</button>
-          ${isSoldOut
-            ? `<button class="add-btn" style="background:var(--dark3);color:var(--muted);cursor:not-allowed;font-size:9px;width:auto;padding:0 6px;font-family:'Bebas Neue',sans-serif;letter-spacing:0.5px">ÉPUISÉ</button>`
-            : `<button class="add-btn" onclick="openModal(${p.id})">+</button>`
-          }
-        </div>
-      </div>`;
+    card.innerHTML = `<div class="product-img" onclick="openModal(${p.id})">${mediaHtml}${p.badge ? `<div class="product-badge ${isSoldOut ? 'sold-out' : ''}">${p.badge}</div>` : ""}</div><div class="product-info"><div class="product-name">${p.name}</div><div class="product-sub">${p.sub || ''}</div>${tiersHtml}<div class="product-footer"><button class="voir-btn" onclick="openModal(${p.id})">VOIR DÉTAILS ›</button>${isSoldOut ? `<button class="add-btn" style="background:var(--dark3);color:var(--muted);cursor:not-allowed;font-size:9px;width:auto;padding:0 6px;font-family:'Bebas Neue',sans-serif;letter-spacing:0.5px">ÉPUISÉ</button>` : `<button class="add-btn" onclick="openModal(${p.id})">+</button>`}</div></div>`;
     grid.appendChild(card);
   });
 }
-
-function quickAddTier(event, productId, tierIndex) {
-  event.stopPropagation();
-  addToCart(productId, tierIndex);
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// PRODUCT MODAL
-// ═══════════════════════════════════════════════════════════════════
+function quickAddTier(event, productId, tierIndex) { event.stopPropagation(); addToCart(productId, tierIndex); }
 function openModal(id) {
   const p = PRODUCTS.find(p => p.id === id);
   if (!p) return;
-  currentModalProductId = id;
-  currentModalTierIndex = null;
-
+  currentModalProductId = id; currentModalTierIndex = null;
   const main = document.getElementById("modalMediaMain");
   const thumbsEl = document.getElementById("modalMediaThumbs");
   main.innerHTML = ""; thumbsEl.innerHTML = "";
-
   const urls = p.media_urls || [];
-
   function showMedia(idx) {
     main.innerHTML = "";
-    thumbsEl.querySelectorAll(".media-thumb").forEach((t, i) =>
-      t.classList.toggle("active", i === idx)
-    );
-    if (!urls.length) {
-      main.innerHTML = `<span class="emoji-big">${p.emoji}</span>`;
-      return;
-    }
+    thumbsEl.querySelectorAll(".media-thumb").forEach((t, i) => t.classList.toggle("active", i === idx));
+    if (!urls.length) { main.innerHTML = `<span class="emoji-big">${p.emoji}</span>`; return; }
     main.innerHTML = `<img src="${urls[idx]}" alt="${p.name}">`;
   }
-
   if (urls.length > 1) {
     urls.forEach((url, idx) => {
       const thumb = document.createElement("div");
@@ -649,20 +501,15 @@ function openModal(id) {
       thumbsEl.appendChild(thumb);
     });
     thumbsEl.style.display = "flex";
-  } else {
-    thumbsEl.style.display = "none";
-  }
+  } else { thumbsEl.style.display = "none"; }
   showMedia(0);
-
   document.getElementById("modalName").textContent = p.name;
   document.getElementById("modalSub").textContent = p.sub || '';
   document.getElementById("modalDesc").textContent = p.description || '';
-
   const tbody = document.getElementById("modalTiersBody");
   tbody.innerHTML = "";
   const tiers = p.tiers || [];
   const isSoldOut = p.badge === "SOLD OUT";
-
   if (isSoldOut) {
     document.getElementById("modalTiersSection").style.display = "none";
     const btn = document.getElementById("modalAddBtn");
@@ -673,17 +520,12 @@ function openModal(id) {
       const up = unitPrice(tier);
       const tr = document.createElement("tr");
       tr.className = "tier-row";
-      tr.innerHTML = `
-        <td><div class="tier-select-radio" id="radio_${idx}"></div></td>
-        <td class="tier-qty-cell">${tier.qty}</td>
-        <td class="tier-price-cell">${tier.price}€</td>
-        <td class="tier-unit-cell">${up ? up + '€/g' : '—'}</td>`;
+      tr.innerHTML = `<td><div class="tier-select-radio" id="radio_${idx}"></div></td><td class="tier-qty-cell">${tier.qty}</td><td class="tier-price-cell">${tier.price}€</td><td class="tier-unit-cell">${up ? up + '€/g' : '—'}</td>`;
       tr.onclick = () => selectTier(idx);
       tbody.appendChild(tr);
     });
     const addBtn = document.getElementById("modalAddBtn");
-    addBtn.textContent = "CHOISIR UNE QUANTITÉ"; addBtn.disabled = true;
-    addBtn.onclick = null;
+    addBtn.textContent = "CHOISIR UNE QUANTITÉ"; addBtn.disabled = true; addBtn.onclick = null;
   } else {
     document.getElementById("modalTiersSection").style.display = "none";
     document.getElementById("modalAddBtn").textContent = "AUCUN PALIER";
@@ -691,7 +533,6 @@ function openModal(id) {
   }
   document.getElementById("productModal").classList.add("show");
 }
-
 function selectTier(idx) {
   currentModalTierIndex = idx;
   document.querySelectorAll("#modalTiersBody .tier-row").forEach((row, i) => {
@@ -706,17 +547,8 @@ function selectTier(idx) {
   addBtn.disabled = false;
   addBtn.onclick = () => { addToCart(currentModalProductId, idx); closeModalDirect(); };
 }
-
-function closeModal(e) {
-  if (e.target === document.getElementById("productModal")) closeModalDirect();
-}
-function closeModalDirect() {
-  document.getElementById("productModal").classList.remove("show");
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// CART
-// ═══════════════════════════════════════════════════════════════════
+function closeModal(e) { if (e.target === document.getElementById("productModal")) closeModalDirect(); }
+function closeModalDirect() { document.getElementById("productModal").classList.remove("show"); }
 function addToCart(productId, tierIndex) {
   const p = PRODUCTS.find(p => p.id === productId);
   if (!p) return;
@@ -727,7 +559,6 @@ function addToCart(productId, tierIndex) {
   updateCartUI();
   showToast(`${p.emoji} ${p.name} ${tier.qty} ajouté !`);
 }
-
 function updateCartUI() {
   const total = Object.values(cart).reduce((s, v) => s + v.qty, 0);
   const countEl = document.getElementById("cartCount");
@@ -735,25 +566,12 @@ function updateCartUI() {
   countEl.style.display = total > 0 ? "flex" : "none";
   document.getElementById("cartBtn").classList.toggle("has-items", total > 0);
 }
-
-function openCart() {
-  document.getElementById("cartDrawer").classList.add("open");
-  document.getElementById("overlay").classList.add("show");
-  renderCart();
-}
-function closeCart() {
-  document.getElementById("cartDrawer").classList.remove("open");
-  document.getElementById("overlay").classList.remove("show");
-}
-
+function openCart() { document.getElementById("cartDrawer").classList.add("open"); document.getElementById("overlay").classList.add("show"); renderCart(); }
+function closeCart() { document.getElementById("cartDrawer").classList.remove("open"); document.getElementById("overlay").classList.remove("show"); }
 function renderCart() {
   const container = document.getElementById("cartItems");
   const entries = Object.entries(cart).filter(([, v]) => v.qty > 0);
-  if (!entries.length) {
-    container.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛒</div><p>TON PANIER EST VIDE</p></div>`;
-    document.getElementById("cartTotal").textContent = "0€";
-    return;
-  }
+  if (!entries.length) { container.innerHTML = `<div class="cart-empty"><div class="cart-empty-icon">🛒</div><p>TON PANIER EST VIDE</p></div>`; document.getElementById("cartTotal").textContent = "0€"; return; }
   let html = "", total = 0;
   entries.forEach(([key, item]) => {
     const p = PRODUCTS.find(p => p.id === item.productId);
@@ -762,62 +580,29 @@ function renderCart() {
     const sub = tier.price * item.qty;
     total += sub;
     const firstUrl = getFirstImageUrl(p);
-    const iconHtml = firstUrl
-      ? `<img src="${firstUrl}" alt="${p.name}">`
-      : `<span style="font-size:22px">${p.emoji}</span>`;
-    html += `
-      <div class="cart-item">
-        <div class="cart-item-icon">${iconHtml}</div>
-        <div class="cart-item-info">
-          <div class="cart-item-name">${p.name}</div>
-          <div class="cart-item-tier">${tier.qty}</div>
-          <div class="cart-item-price">${sub}€</div>
-        </div>
-        <div class="cart-item-qty">
-          <button class="qty-btn" onclick="changeQty('${key}',-1)">−</button>
-          <span class="qty-val">${item.qty}</span>
-          <button class="qty-btn" onclick="changeQty('${key}',+1)">+</button>
-        </div>
-      </div>`;
+    const iconHtml = firstUrl ? `<img src="${firstUrl}" alt="${p.name}">` : `<span style="font-size:22px">${p.emoji}</span>`;
+    html += `<div class="cart-item"><div class="cart-item-icon">${iconHtml}</div><div class="cart-item-info"><div class="cart-item-name">${p.name}</div><div class="cart-item-tier">${tier.qty}</div><div class="cart-item-price">${sub}€</div></div><div class="cart-item-qty"><button class="qty-btn" onclick="changeQty('${key}',-1)">−</button><span class="qty-val">${item.qty}</span><button class="qty-btn" onclick="changeQty('${key}',+1)">+</button></div></div>`;
   });
   container.innerHTML = html;
   document.getElementById("cartTotal").textContent = total + "€";
 }
-
 function changeQty(key, delta) {
   if (!cart[key]) return;
   cart[key].qty = Math.max(0, cart[key].qty + delta);
   if (cart[key].qty === 0) delete cart[key];
   updateCartUI(); renderCart();
 }
-
 function buildOrderMessage() {
-  const lines = Object.values(cart).filter(v => v.qty > 0).map(item => {
-    const p = PRODUCTS.find(p => p.id === item.productId);
-    const tier = p.tiers[item.tierIndex];
-    return `• ${p.name} ${tier.qty} × ${item.qty} (${tier.price * item.qty}€)`;
-  });
-  const total = Object.values(cart).filter(v => v.qty > 0).reduce((s, item) => {
-    const p = PRODUCTS.find(p => p.id === item.productId);
-    return s + p.tiers[item.tierIndex].price * item.qty;
-  }, 0);
+  const lines = Object.values(cart).filter(v => v.qty > 0).map(item => { const p = PRODUCTS.find(p => p.id === item.productId); const tier = p.tiers[item.tierIndex]; return `• ${p.name} ${tier.qty} × ${item.qty} (${tier.price * item.qty}€)`; });
+  const total = Object.values(cart).filter(v => v.qty > 0).reduce((s, item) => { const p = PRODUCTS.find(p => p.id === item.productId); return s + p.tiers[item.tierIndex].price * item.qty; }, 0);
   return encodeURIComponent(`🌿 COMMANDE HASH FARMER\n\n${lines.join("\n")}\n\n💰 Total : ${total}€\n\nLivraison souhaitée : `);
 }
-
-function sendOrder() {
-  if (!Object.keys(cart).length) { showToast("⚠️ Panier vide !"); return; }
-  window.open(`https://t.me/${TELEGRAM_USERNAME}?text=${buildOrderMessage()}`, "_blank");
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// MEDIA UPLOAD — compress then upload to Supabase Storage
-// ═══════════════════════════════════════════════════════════════════
+function sendOrder() { if (!Object.keys(cart).length) { showToast("⚠️ Panier vide !"); return; } window.open(`https://t.me/${TELEGRAM_USERNAME}?text=${buildOrderMessage()}`, "_blank"); }
 function handleMediaUpload(event) {
   const files = Array.from(event.target.files);
   if (!files.length) return;
   let pending = files.filter(f => f.type.startsWith('image/')).length;
   if (!pending) return;
-
   files.forEach(file => {
     if (!file.type.startsWith('image/')) return;
     const img = new Image();
@@ -839,10 +624,8 @@ function handleMediaUpload(event) {
     img.onerror = () => { URL.revokeObjectURL(url); pending--; if (pending === 0) renderMediaPreviews(); };
     img.src = url;
   });
-
   event.target.value = "";
 }
-
 function renderMediaPreviews() {
   const list = document.getElementById("mediaPreviewList");
   list.innerHTML = "";
@@ -860,17 +643,8 @@ function renderMediaPreviews() {
     list.appendChild(item);
   });
 }
-
-function removeMedia(idx) {
-  editMedias.splice(idx, 1);
-  renderMediaPreviews();
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// ADMIN AUTH
-// ═══════════════════════════════════════════════════════════════════
+function removeMedia(idx) { editMedias.splice(idx, 1); renderMediaPreviews(); }
 document.getElementById("logoMain").addEventListener("click", triggerAdmin);
-
 function triggerAdmin() {
   adminTapCount++;
   clearTimeout(adminTapTimer);
@@ -878,13 +652,9 @@ function triggerAdmin() {
   if (adminTapCount >= 5) {
     adminTapCount = 0;
     if (adminUnlocked) { switchPage('admin'); }
-    else {
-      document.getElementById("adminLogin").classList.add("show");
-      setTimeout(() => document.getElementById("adminPwInput").focus(), 300);
-    }
+    else { document.getElementById("adminLogin").classList.add("show"); setTimeout(() => document.getElementById("adminPwInput").focus(), 300); }
   }
 }
-
 function checkAdminPw() {
   const val = document.getElementById("adminPwInput").value;
   if (val === ADMIN_PASSWORD) {
@@ -901,67 +671,31 @@ function checkAdminPw() {
     setTimeout(() => document.getElementById("adminPwInput").style.borderColor = "var(--border)", 1000);
   }
 }
-
-function closeAdminLogin() {
-  document.getElementById("adminLogin").classList.remove("show");
-  document.getElementById("adminPwInput").value = "";
-}
-
-function adminLogout() {
-  adminUnlocked = false;
-  document.getElementById("navAdmin").style.display = "none";
-  switchPage('shop');
-  showToast("👋 Déconnecté");
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// ADMIN LIST
-// ═══════════════════════════════════════════════════════════════════
+function closeAdminLogin() { document.getElementById("adminLogin").classList.remove("show"); document.getElementById("adminPwInput").value = ""; }
+function adminLogout() { adminUnlocked = false; document.getElementById("navAdmin").style.display = "none"; switchPage('shop'); showToast("👋 Déconnecté"); }
 function renderAdminList() {
   const list = document.getElementById("adminProductList");
   list.innerHTML = "";
   PRODUCTS.forEach(p => {
     const tiers = p.tiers || [];
-    const tiersText = tiers.length
-      ? tiers.map(t => `${t.qty}·${t.price}€`).join(" / ")
-      : "Aucun palier";
+    const tiersText = tiers.length ? tiers.map(t => `${t.qty}·${t.price}€`).join(" / ") : "Aucun palier";
     const firstUrl = getFirstImageUrl(p);
-    const thumbHtml = firstUrl
-      ? `<img src="${firstUrl}" alt="${p.name}">`
-      : `<span style="font-size:22px">${p.emoji}</span>`;
+    const thumbHtml = firstUrl ? `<img src="${firstUrl}" alt="${p.name}">` : `<span style="font-size:22px">${p.emoji}</span>`;
     const item = document.createElement("div");
     item.className = "admin-product-item";
-    item.innerHTML = `
-      <div class="admin-product-thumb">${thumbHtml}</div>
-      <div class="admin-product-info">
-        <div class="admin-product-name">${p.name}${p.badge ? `<span class="admin-badge-indicator ${p.badge === 'SOLD OUT' ? 'sold-out' : ''}">${p.badge}</span>` : ""}</div>
-        <div class="admin-product-details">${tiersText} · ${(p.media_urls || []).length} image(s)</div>
-      </div>
-      <div class="admin-product-actions">
-        <button class="admin-edit-btn" onclick="openEditModal(${p.id})">✏️</button>
-        <button class="admin-delete-btn" onclick="deleteProduct(${p.id})">🗑️</button>
-      </div>`;
+    item.innerHTML = `<div class="admin-product-thumb">${thumbHtml}</div><div class="admin-product-info"><div class="admin-product-name">${p.name}${p.badge ? `<span class="admin-badge-indicator ${p.badge === 'SOLD OUT' ? 'sold-out' : ''}">${p.badge}</span>` : ""}</div><div class="admin-product-details">${tiersText} · ${(p.media_urls || []).length} image(s)</div></div><div class="admin-product-actions"><button class="admin-edit-btn" onclick="openEditModal(${p.id})">✏️</button><button class="admin-delete-btn" onclick="deleteProduct(${p.id})">🗑️</button></div>`;
     list.appendChild(item);
   });
 }
-
 async function deleteProduct(id) {
   if (!confirm("Supprimer ce produit ?")) return;
   const p = PRODUCTS.find(p => p.id === id);
-  if (p && p.media_urls) {
-    for (const url of p.media_urls) {
-      await deleteImage(url);
-    }
-  }
+  if (p && p.media_urls) { for (const url of p.media_urls) await deleteImage(url); }
   await deleteProductDB(id);
   PRODUCTS = PRODUCTS.filter(p => p.id !== id);
   renderAdminList(); renderProducts();
   showToast("🗑️ Produit supprimé");
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// EDIT MODAL
-// ═══════════════════════════════════════════════════════════════════
 function openEditModal(id) {
   editingId = id;
   document.getElementById("editModalTitle").textContent = id ? "MODIFIER PRODUIT" : "NOUVEAU PRODUIT";
@@ -985,11 +719,9 @@ function openEditModal(id) {
     editTiers = [{ qty: "5g", price: 40 }, { qty: "10g", price: 70 }, { qty: "20g", price: 120 }];
     editMedias = [];
   }
-  renderTiersAdmin();
-  renderMediaPreviews();
+  renderTiersAdmin(); renderMediaPreviews();
   document.getElementById("editModal").classList.add("show");
 }
-
 function renderTiersAdmin() {
   const list = document.getElementById("tiersAdminList");
   list.innerHTML = "";
@@ -997,29 +729,13 @@ function renderTiersAdmin() {
     const row = document.createElement("div");
     row.className = "tier-admin-row";
     row.dataset.index = idx;
-    row.innerHTML = `
-      <input class="tier-admin-input" data-field="qty" placeholder="ex: 5g" value="${tier.qty}">
-      <input class="tier-admin-input" data-field="price" type="number" placeholder="ex: 40" value="${tier.price}">
-      <button class="tier-remove-btn" onclick="removeTierRow(${idx})">✕</button>`;
+    row.innerHTML = `<input class="tier-admin-input" data-field="qty" placeholder="ex: 5g" value="${tier.qty}"><input class="tier-admin-input" data-field="price" type="number" placeholder="ex: 40" value="${tier.price}"><button class="tier-remove-btn" onclick="removeTierRow(${idx})">✕</button>`;
     list.appendChild(row);
   });
 }
-
-function addTierRow() {
-  editTiers.push({ qty: "", price: 0 });
-  renderTiersAdmin();
-}
-
-function removeTierRow(idx) {
-  editTiers.splice(idx, 1);
-  renderTiersAdmin();
-}
-
-function closeEditModal() {
-  document.getElementById("editModal").classList.remove("show");
-  editingId = null; editTiers = []; editMedias = [];
-}
-
+function addTierRow() { editTiers.push({ qty: "", price: 0 }); renderTiersAdmin(); }
+function removeTierRow(idx) { editTiers.splice(idx, 1); renderTiersAdmin(); }
+function closeEditModal() { document.getElementById("editModal").classList.remove("show"); editingId = null; editTiers = []; editMedias = []; }
 function getTiersFromDOM() {
   const rows = document.querySelectorAll("#tiersAdminList .tier-admin-row");
   const tiers = [];
@@ -1030,18 +746,14 @@ function getTiersFromDOM() {
   });
   return tiers;
 }
-
 async function saveProduct() {
   const name = document.getElementById("editName").value.trim();
   if (!name) { showToast("⚠️ Nom obligatoire"); return; }
   const tiers = getTiersFromDOM();
   if (!tiers.length) { showToast("⚠️ Ajoute au moins un palier"); return; }
-
   const btn = document.getElementById("editSaveBtn");
   btn.textContent = "⏳ SAUVEGARDE..."; btn.disabled = true;
-
   try {
-    // Upload new images to Supabase Storage
     const mediaUrls = [];
     for (const m of editMedias) {
       if (m.isNew && m.data) {
@@ -1052,15 +764,12 @@ async function saveProduct() {
         mediaUrls.push(m.url);
       }
     }
-
-    // Delete removed images
     if (editingId) {
       const oldP = PRODUCTS.find(p => p.id === editingId);
       const oldUrls = oldP ? (oldP.media_urls || []) : [];
       const removedUrls = oldUrls.filter(u => !mediaUrls.includes(u));
       for (const u of removedUrls) await deleteImage(u);
     }
-
     const data = {
       name,
       sub: document.getElementById("editSub").value.trim(),
@@ -1071,9 +780,8 @@ async function saveProduct() {
       media_urls: mediaUrls,
       tiers
     };
-
     if (editingId) {
-      const updated = await updateProduct(editingId, data);
+      await updateProduct(editingId, data);
       const idx = PRODUCTS.findIndex(p => p.id === editingId);
       if (idx !== -1) PRODUCTS[idx] = { ...PRODUCTS[idx], ...data };
       showToast("✅ Produit modifié !");
@@ -1082,10 +790,7 @@ async function saveProduct() {
       if (created) PRODUCTS.push(created);
       showToast("✅ Produit ajouté !");
     }
-
-    closeEditModal();
-    renderAdminList();
-    renderProducts();
+    closeEditModal(); renderAdminList(); renderProducts();
   } catch(e) {
     console.error("Save error:", e);
     showToast("❌ Erreur : " + e.message);
@@ -1093,26 +798,18 @@ async function saveProduct() {
     btn.textContent = "✅ SAUVEGARDER"; btn.disabled = false;
   }
 }
-
-// ═══════════════════════════════════════════════════════════════════
-// NAVIGATION
-// ═══════════════════════════════════════════════════════════════════
 function switchPage(page) {
-  ["shop", "contact", "admin"].forEach(p =>
-    document.getElementById(p + "Page").classList.toggle("active", p === page)
-  );
+  ["shop", "contact", "admin"].forEach(p => document.getElementById(p + "Page").classList.toggle("active", p === page));
   document.getElementById("navShop").classList.toggle("active", page === "shop");
   document.getElementById("navContact").classList.toggle("active", page === "contact");
   document.getElementById("navAdmin").classList.toggle("active", page === "admin");
   if (page === "admin") renderAdminList();
 }
-
 function showToast(msg) {
   const t = document.getElementById("toast");
   t.textContent = msg; t.classList.add("show");
   setTimeout(() => t.classList.remove("show"), 2200);
 }
-
 init();
 </script>
 </body>
