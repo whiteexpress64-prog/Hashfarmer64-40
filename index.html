@@ -193,7 +193,6 @@ body{background:var(--dark);color:var(--text);font-family:'Exo 2',sans-serif;min
 </head>
 <body>
 
-<!-- Loading screen while IndexedDB initializes -->
 <div class="loading-overlay" id="loadingOverlay">
   <div class="loading-spinner"></div>
   <div class="loading-text">CHARGEMENT...</div>
@@ -328,7 +327,7 @@ body{background:var(--dark);color:var(--text);font-family:'Exo 2',sans-serif;min
       <input type="file" id="mediaFileInputGallery" accept="image/*" multiple onchange="handleMediaUpload(event)">
       <input type="file" id="mediaFileInputCamera" accept="image/*" capture="environment" onchange="handleMediaUpload(event)">
       <div class="media-preview-list" id="mediaPreviewList"></div>
-      <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:0.5px;margin-top:6px">💡 La 1ère image est la couverture · Stockage permanent IndexedDB</div>
+      <div style="font-size:10px;color:var(--muted);font-weight:600;letter-spacing:0.5px;margin-top:6px">💡 La 1ère image est la couverture · Stockage Supabase</div>
     </div>
     <div class="edit-field"><label class="edit-label">Nom du produit</label><input class="edit-input" id="editName" placeholder="Ex: Moroccan Gold"></div>
     <div class="edit-field"><label class="edit-label">Sous-titre</label><input class="edit-input" id="editSub" placeholder="Ex: Résine · Sélection A"></div>
@@ -369,8 +368,13 @@ body{background:var(--dark);color:var(--text);font-family:'Exo 2',sans-serif;min
 
 <script>
 // ═══════════════════════════════════════════════════════════════════
-// CONFIG
+// CONFIG SUPABASE
 // ═══════════════════════════════════════════════════════════════════
+const SUPABASE_URL = "https://pztimswsqglsmnrfixmz.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB6dGltc3dzcWdsc21ucmZpeG16Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyNDg3NTAsImV4cCI6MjA5NTgyNDc1MH0.akWWEn2KXu6Nzyxb5gT5mopKvx9u4G5wZZ8GVSZGaRM";
+const TABLE = "products";
+const BUCKET = "media";
+
 const ADMIN_PASSWORD = "1234";
 const TELEGRAM_USERNAME = "hashfarmer64";
 const CATEGORIES = [
@@ -381,127 +385,105 @@ const CATEGORIES = [
   {id:"promo",label:"⚡ Promos"}
 ];
 
-const DEFAULT_PRODUCTS = [
-  {id:1,name:"Moroccan Gold",sub:"Résine · Sélection A",desc:"Résine dorée pressée à froid, arômes terreux et épicés.",emoji:"🟤",cat:"resine",badge:"TOP",mediaIds:[],tiers:[{qty:"5g",price:40},{qty:"10g",price:70},{qty:"20g",price:120},{qty:"50g",price:280}]},
-  {id:2,name:"Green Diamond",sub:"Fleur · Indoor",desc:"Fleur indoor de haute qualité, trichomes abondants, parfum fruité.",emoji:"💚",cat:"fleur",badge:"NOUVEAU",mediaIds:[],tiers:[{qty:"3g",price:30},{qty:"5g",price:45},{qty:"10g",price:80},{qty:"20g",price:150}]},
-  {id:3,name:"Black Label",sub:"Résine · Premium",desc:"Résine noire extraite à la main, goût intense et complexe.",emoji:"⚫",cat:"resine",badge:"",mediaIds:[],tiers:[{qty:"5g",price:50},{qty:"10g",price:90},{qty:"20g",price:160},{qty:"50g",price:380}]},
-  {id:4,name:"Sunset Haze",sub:"Fleur · Greenhouse",desc:"Greenhouse ensoleillé, arômes d'agrumes et de pin.",emoji:"🌿",cat:"fleur",badge:"PROMO",mediaIds:[],tiers:[{qty:"5g",price:35},{qty:"10g",price:60},{qty:"20g",price:110}]},
-  {id:5,name:"Gold Drop",sub:"Huile · Full Spectrum",desc:"Huile full spectrum 10%, extraction CO2.",emoji:"🟡",cat:"huile",badge:"",mediaIds:[],tiers:[{qty:"1 flacon",price:25},{qty:"2 flacons",price:45}]},
-  {id:6,name:"Ice Cream",sub:"Fleur · Indoor",desc:"Indoor premium aux notes crémeuses et vanillées.",emoji:"🍦",cat:"fleur",badge:"TOP",mediaIds:[],tiers:[{qty:"3g",price:35},{qty:"5g",price:55},{qty:"10g",price:100},{qty:"20g",price:180}]},
-  {id:7,name:"Polm Classic",sub:"Résine · Tradition",desc:"Résine traditionnelle pressée à froid, saveurs authentiques.",emoji:"🫓",cat:"resine",badge:"",mediaIds:[],tiers:[{qty:"5g",price:35},{qty:"10g",price:65},{qty:"20g",price:110},{qty:"50g",price:250}]},
-  {id:8,name:"Relax Drop",sub:"Huile · Nuit",desc:"Formule nuit enrichie, extraction douce. Flacon 30ml.",emoji:"🌙",cat:"huile",badge:"NOUVEAU",mediaIds:[],tiers:[{qty:"1 flacon",price:30},{qty:"2 flacons",price:55}]}
-];
+// ═══════════════════════════════════════════════════════════════════
+// SUPABASE API HELPERS
+// ═══════════════════════════════════════════════════════════════════
+async function sbFetch(path, options = {}) {
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    ...options,
+    headers: {
+      "apikey": SUPABASE_KEY,
+      "Authorization": `Bearer ${SUPABASE_KEY}`,
+      "Content-Type": "application/json",
+      "Prefer": "return=representation",
+      ...(options.headers || {})
+    }
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(err);
+  }
+  const text = await res.text();
+  return text ? JSON.parse(text) : null;
+}
+
+async function getProducts() {
+  return await sbFetch(`${TABLE}?select=*&order=created_at.asc`);
+}
+
+async function insertProduct(data) {
+  const result = await sbFetch(TABLE, {
+    method: "POST",
+    body: JSON.stringify(data)
+  });
+  return Array.isArray(result) ? result[0] : result;
+}
+
+async function updateProduct(id, data) {
+  const result = await sbFetch(`${TABLE}?id=eq.${id}`, {
+    method: "PATCH",
+    body: JSON.stringify(data)
+  });
+  return Array.isArray(result) ? result[0] : result;
+}
+
+async function deleteProductDB(id) {
+  await sbFetch(`${TABLE}?id=eq.${id}`, { method: "DELETE" });
+}
 
 // ═══════════════════════════════════════════════════════════════════
-// INDEXEDDB — persistent image storage, no size limit
+// SUPABASE STORAGE — upload image, returns public URL
 // ═══════════════════════════════════════════════════════════════════
-const DB_NAME = "HashFarmerDB";
-const DB_VERSION = 1;
-const STORE_IMAGES = "images";   // key: mediaId (string), value: {id, data (base64), type}
-const STORE_PRODUCTS = "products"; // key: "list", value: array of products (without image data)
+async function uploadImage(base64Data, filename) {
+  // Convert base64 to blob
+  const res = await fetch(base64Data);
+  const blob = await res.blob();
 
-let db = null;
+  const uploadRes = await fetch(
+    `${SUPABASE_URL}/storage/v1/object/${BUCKET}/${filename}`,
+    {
+      method: "POST",
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": `Bearer ${SUPABASE_KEY}`,
+        "Content-Type": blob.type || "image/jpeg",
+        "x-upsert": "true"
+      },
+      body: blob
+    }
+  );
 
-function openDB() {
-  return new Promise((resolve, reject) => {
-    const req = indexedDB.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = e => {
-      const d = e.target.result;
-      if (!d.objectStoreNames.contains(STORE_IMAGES)) {
-        d.createObjectStore(STORE_IMAGES, { keyPath: "id" });
+  if (!uploadRes.ok) {
+    const err = await uploadRes.text();
+    throw new Error("Upload failed: " + err);
+  }
+
+  // Return public URL
+  return `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/${filename}`;
+}
+
+async function deleteImage(url) {
+  try {
+    const filename = url.split(`/object/public/${BUCKET}/`)[1];
+    if (!filename) return;
+    await fetch(`${SUPABASE_URL}/storage/v1/object/${BUCKET}/${filename}`, {
+      method: "DELETE",
+      headers: {
+        "apikey": SUPABASE_KEY,
+        "Authorization": `Bearer ${SUPABASE_KEY}`
       }
-      if (!d.objectStoreNames.contains(STORE_PRODUCTS)) {
-        d.createObjectStore(STORE_PRODUCTS);
-      }
-    };
-    req.onsuccess = e => { db = e.target.result; resolve(db); };
-    req.onerror = e => reject(e.target.error);
-  });
-}
-
-function dbPut(storeName, value, key) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(storeName, "readwrite");
-    const store = tx.objectStore(storeName);
-    const req = key !== undefined ? store.put(value, key) : store.put(value);
-    req.onsuccess = () => resolve();
-    req.onerror = e => reject(e.target.error);
-  });
-}
-
-function dbGet(storeName, key) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(storeName, "readonly");
-    const req = tx.objectStore(storeName).get(key);
-    req.onsuccess = e => resolve(e.target.result);
-    req.onerror = e => reject(e.target.error);
-  });
-}
-
-function dbDelete(storeName, key) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(storeName, "readwrite");
-    const req = tx.objectStore(storeName).delete(key);
-    req.onsuccess = () => resolve();
-    req.onerror = e => reject(e.target.error);
-  });
-}
-
-function dbGetAll(storeName) {
-  return new Promise((resolve, reject) => {
-    const tx = db.transaction(storeName, "readonly");
-    const req = tx.objectStore(storeName).getAll();
-    req.onsuccess = e => resolve(e.target.result);
-    req.onerror = e => reject(e.target.error);
-  });
-}
-
-// Save a media blob (base64) → returns a unique id string
-async function saveMediaToDB(base64Data) {
-  const id = "img_" + Date.now() + "_" + Math.random().toString(36).slice(2, 7);
-  await dbPut(STORE_IMAGES, { id, data: base64Data });
-  return id;
-}
-
-// Load media data from DB by id
-async function loadMediaFromDB(id) {
-  const rec = await dbGet(STORE_IMAGES, id);
-  return rec ? rec.data : null;
-}
-
-// Delete media from DB
-async function deleteMediaFromDB(id) {
-  await dbDelete(STORE_IMAGES, id);
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// PRODUCTS PERSISTENCE via IndexedDB
-// ═══════════════════════════════════════════════════════════════════
-async function loadProductsFromDB() {
-  const stored = await dbGet(STORE_PRODUCTS, "list");
-  if (stored && stored.length) return stored;
-  // First time: save defaults
-  await dbPut(STORE_PRODUCTS, DEFAULT_PRODUCTS, "list");
-  return DEFAULT_PRODUCTS;
-}
-
-async function saveProductsToDB(products) {
-  // Products only store mediaIds (strings), not image data
-  await dbPut(STORE_PRODUCTS, products, "list");
+    });
+  } catch(e) { console.warn("Delete image failed:", e); }
 }
 
 // ═══════════════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════════════
 let PRODUCTS = [];
-// imageCache: { [mediaId]: base64DataUrl } — in-memory cache loaded at startup
-let imageCache = {};
 let cart = {};
 let activeFilter = "all";
 let editingId = null;
-// editMedias: array of { id: string|null, data: base64, isNew: bool }
-// id=null means not yet saved to DB (newly added in current edit session)
-let editMedias = [];
+let editMedias = []; // { url: string|null, data: base64|null, isNew: bool }
 let editTiers = [];
 let adminUnlocked = false;
 let adminTapCount = 0, adminTapTimer = null;
@@ -509,34 +491,19 @@ let currentModalProductId = null;
 let currentModalTierIndex = null;
 
 // ═══════════════════════════════════════════════════════════════════
-// STARTUP — init DB, load all images into cache, then render
+// STARTUP
 // ═══════════════════════════════════════════════════════════════════
 async function init() {
   try {
-    await openDB();
-    PRODUCTS = await loadProductsFromDB();
-
-    // Pre-load ALL images into memory cache
-    const allImages = await dbGetAll(STORE_IMAGES);
-    allImages.forEach(img => { imageCache[img.id] = img.data; });
-
+    PRODUCTS = await getProducts();
     buildFilters();
     renderProducts();
     document.getElementById("loadingOverlay").classList.add("hidden");
   } catch(e) {
     console.error("Init error:", e);
-    // Fallback to defaults without images
-    PRODUCTS = DEFAULT_PRODUCTS;
-    buildFilters();
-    renderProducts();
     document.getElementById("loadingOverlay").classList.add("hidden");
-    showToast("⚠️ Erreur de stockage");
+    showToast("⚠️ Erreur de connexion Supabase");
   }
-}
-
-// Get image src from cache
-function getImageSrc(mediaId) {
-  return imageCache[mediaId] || null;
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -576,14 +543,9 @@ function unitPrice(tier) {
   if (!g || !tier.price) return null;
   return (tier.price / g).toFixed(1);
 }
-
-function getFirstImageSrc(p) {
-  const ids = p.mediaIds || [];
-  for (const id of ids) {
-    const src = getImageSrc(id);
-    if (src) return src;
-  }
-  return null;
+function getFirstImageUrl(p) {
+  const urls = p.media_urls || [];
+  return urls.length ? urls[0] : null;
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -603,15 +565,16 @@ function renderProducts() {
 
   filtered.forEach((p, i) => {
     const isSoldOut = p.badge === "SOLD OUT";
-    const firstSrc = getFirstImageSrc(p);
-    const mediaHtml = firstSrc
-      ? `<img src="${firstSrc}" alt="${p.name}">`
+    const firstUrl = getFirstImageUrl(p);
+    const mediaHtml = firstUrl
+      ? `<img src="${firstUrl}" alt="${p.name}">`
       : `<span>${p.emoji}</span>`;
 
+    const tiers = p.tiers || [];
     let tiersHtml = "";
-    if (p.tiers && p.tiers.length) {
+    if (tiers.length) {
       tiersHtml = `<div class="price-tiers-grid">`;
-      p.tiers.forEach((tier, idx) => {
+      tiers.forEach((tier, idx) => {
         tiersHtml += `<div class="price-tier-pill${isSoldOut ? ' sold-out-pill' : ''}"
           ${isSoldOut ? '' : `onclick="quickAddTier(event,${p.id},${idx})"`}>
           <span class="price-tier-qty">${tier.qty}</span>
@@ -631,7 +594,7 @@ function renderProducts() {
       </div>
       <div class="product-info">
         <div class="product-name">${p.name}</div>
-        <div class="product-sub">${p.sub}</div>
+        <div class="product-sub">${p.sub || ''}</div>
         ${tiersHtml}
         <div class="product-footer">
           <button class="voir-btn" onclick="openModal(${p.id})">VOIR DÉTAILS ›</button>
@@ -663,26 +626,25 @@ function openModal(id) {
   const thumbsEl = document.getElementById("modalMediaThumbs");
   main.innerHTML = ""; thumbsEl.innerHTML = "";
 
-  const mediaIds = p.mediaIds || [];
-  const srcs = mediaIds.map(mid => getImageSrc(mid)).filter(Boolean);
+  const urls = p.media_urls || [];
 
   function showMedia(idx) {
     main.innerHTML = "";
     thumbsEl.querySelectorAll(".media-thumb").forEach((t, i) =>
       t.classList.toggle("active", i === idx)
     );
-    if (!srcs.length) {
+    if (!urls.length) {
       main.innerHTML = `<span class="emoji-big">${p.emoji}</span>`;
       return;
     }
-    main.innerHTML = `<img src="${srcs[idx]}" alt="${p.name}">`;
+    main.innerHTML = `<img src="${urls[idx]}" alt="${p.name}">`;
   }
 
-  if (srcs.length > 1) {
-    srcs.forEach((src, idx) => {
+  if (urls.length > 1) {
+    urls.forEach((url, idx) => {
       const thumb = document.createElement("div");
       thumb.className = "media-thumb" + (idx === 0 ? " active" : "");
-      thumb.innerHTML = `<img src="${src}">`;
+      thumb.innerHTML = `<img src="${url}">`;
       thumb.onclick = () => showMedia(idx);
       thumbsEl.appendChild(thumb);
     });
@@ -693,20 +655,21 @@ function openModal(id) {
   showMedia(0);
 
   document.getElementById("modalName").textContent = p.name;
-  document.getElementById("modalSub").textContent = p.sub;
-  document.getElementById("modalDesc").textContent = p.desc;
+  document.getElementById("modalSub").textContent = p.sub || '';
+  document.getElementById("modalDesc").textContent = p.description || '';
 
   const tbody = document.getElementById("modalTiersBody");
   tbody.innerHTML = "";
+  const tiers = p.tiers || [];
   const isSoldOut = p.badge === "SOLD OUT";
 
   if (isSoldOut) {
     document.getElementById("modalTiersSection").style.display = "none";
     const btn = document.getElementById("modalAddBtn");
     btn.textContent = "PRODUIT ÉPUISÉ"; btn.disabled = true;
-  } else if (p.tiers && p.tiers.length) {
+  } else if (tiers.length) {
     document.getElementById("modalTiersSection").style.display = "block";
-    p.tiers.forEach((tier, idx) => {
+    tiers.forEach((tier, idx) => {
       const up = unitPrice(tier);
       const tr = document.createElement("tr");
       tr.className = "tier-row";
@@ -798,9 +761,9 @@ function renderCart() {
     const tier = p.tiers[item.tierIndex];
     const sub = tier.price * item.qty;
     total += sub;
-    const firstSrc = getFirstImageSrc(p);
-    const iconHtml = firstSrc
-      ? `<img src="${firstSrc}" alt="${p.name}">`
+    const firstUrl = getFirstImageUrl(p);
+    const iconHtml = firstUrl
+      ? `<img src="${firstUrl}" alt="${p.name}">`
       : `<span style="font-size:22px">${p.emoji}</span>`;
     html += `
       <div class="cart-item">
@@ -847,7 +810,7 @@ function sendOrder() {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// MEDIA UPLOAD — compress then store in IndexedDB
+// MEDIA UPLOAD — compress then upload to Supabase Storage
 // ═══════════════════════════════════════════════════════════════════
 function handleMediaUpload(event) {
   const files = Array.from(event.target.files);
@@ -869,8 +832,7 @@ function handleMediaUpload(event) {
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
       const data = canvas.toDataURL('image/jpeg', 0.82);
       URL.revokeObjectURL(url);
-      // Store with a temp id (null = not yet persisted, will be saved on saveProduct)
-      editMedias.push({ id: null, data, isNew: true });
+      editMedias.push({ url: null, data, isNew: true });
       pending--;
       if (pending === 0) renderMediaPreviews();
     };
@@ -885,9 +847,10 @@ function renderMediaPreviews() {
   const list = document.getElementById("mediaPreviewList");
   list.innerHTML = "";
   editMedias.forEach((m, idx) => {
+    const src = m.isNew ? m.data : m.url;
     const item = document.createElement("div");
     item.className = "media-preview-item";
-    item.innerHTML = `<img src="${m.data}">`;
+    item.innerHTML = `<img src="${src}">`;
     if (idx === 0) item.innerHTML += `<span class="media-preview-first">COVER</span>`;
     const removeBtn = document.createElement("button");
     removeBtn.className = "media-preview-remove";
@@ -958,12 +921,13 @@ function renderAdminList() {
   const list = document.getElementById("adminProductList");
   list.innerHTML = "";
   PRODUCTS.forEach(p => {
-    const tiersText = p.tiers && p.tiers.length
-      ? p.tiers.map(t => `${t.qty}·${t.price}€`).join(" / ")
+    const tiers = p.tiers || [];
+    const tiersText = tiers.length
+      ? tiers.map(t => `${t.qty}·${t.price}€`).join(" / ")
       : "Aucun palier";
-    const firstSrc = getFirstImageSrc(p);
-    const thumbHtml = firstSrc
-      ? `<img src="${firstSrc}" alt="${p.name}">`
+    const firstUrl = getFirstImageUrl(p);
+    const thumbHtml = firstUrl
+      ? `<img src="${firstUrl}" alt="${p.name}">`
       : `<span style="font-size:22px">${p.emoji}</span>`;
     const item = document.createElement("div");
     item.className = "admin-product-item";
@@ -971,7 +935,7 @@ function renderAdminList() {
       <div class="admin-product-thumb">${thumbHtml}</div>
       <div class="admin-product-info">
         <div class="admin-product-name">${p.name}${p.badge ? `<span class="admin-badge-indicator ${p.badge === 'SOLD OUT' ? 'sold-out' : ''}">${p.badge}</span>` : ""}</div>
-        <div class="admin-product-details">${tiersText} · ${(p.mediaIds || []).length} image(s)</div>
+        <div class="admin-product-details">${tiersText} · ${(p.media_urls || []).length} image(s)</div>
       </div>
       <div class="admin-product-actions">
         <button class="admin-edit-btn" onclick="openEditModal(${p.id})">✏️</button>
@@ -984,15 +948,13 @@ function renderAdminList() {
 async function deleteProduct(id) {
   if (!confirm("Supprimer ce produit ?")) return;
   const p = PRODUCTS.find(p => p.id === id);
-  if (p && p.mediaIds) {
-    // Delete images from IndexedDB
-    for (const mid of p.mediaIds) {
-      delete imageCache[mid];
-      await deleteMediaFromDB(mid).catch(() => {});
+  if (p && p.media_urls) {
+    for (const url of p.media_urls) {
+      await deleteImage(url);
     }
   }
+  await deleteProductDB(id);
   PRODUCTS = PRODUCTS.filter(p => p.id !== id);
-  await saveProductsToDB(PRODUCTS);
   renderAdminList(); renderProducts();
   showToast("🗑️ Produit supprimé");
 }
@@ -1006,17 +968,13 @@ function openEditModal(id) {
   if (id) {
     const p = PRODUCTS.find(p => p.id === id);
     document.getElementById("editName").value = p.name;
-    document.getElementById("editSub").value = p.sub;
-    document.getElementById("editDesc").value = p.desc;
-    document.getElementById("editEmoji").value = p.emoji;
-    document.getElementById("editCat").value = p.cat;
-    document.getElementById("editBadge").value = p.badge;
+    document.getElementById("editSub").value = p.sub || '';
+    document.getElementById("editDesc").value = p.description || '';
+    document.getElementById("editEmoji").value = p.emoji || '🌿';
+    document.getElementById("editCat").value = p.cat || 'resine';
+    document.getElementById("editBadge").value = p.badge || '';
     editTiers = (p.tiers || []).map(t => ({ ...t }));
-    // Load existing images from cache into editMedias
-    editMedias = (p.mediaIds || []).map(mid => {
-      const data = imageCache[mid] || null;
-      return { id: mid, data, isNew: false };
-    }).filter(m => m.data); // only show ones we have in cache
+    editMedias = (p.media_urls || []).map(url => ({ url, data: null, isNew: false }));
   } else {
     document.getElementById("editName").value = "";
     document.getElementById("editSub").value = "";
@@ -1050,10 +1008,6 @@ function renderTiersAdmin() {
 function addTierRow() {
   editTiers.push({ qty: "", price: 0 });
   renderTiersAdmin();
-  setTimeout(() => {
-    const c = document.querySelector(".edit-modal-content");
-    c.scrollTop = c.scrollHeight;
-  }, 50);
 }
 
 function removeTierRow(idx) {
@@ -1063,91 +1017,80 @@ function removeTierRow(idx) {
 
 function closeEditModal() {
   document.getElementById("editModal").classList.remove("show");
-  editingId = null;
-  editTiers = [];
-  editMedias = [];
+  editingId = null; editTiers = []; editMedias = [];
 }
 
 function getTiersFromDOM() {
   const rows = document.querySelectorAll("#tiersAdminList .tier-admin-row");
   const tiers = [];
   rows.forEach(row => {
-    const qtyInput = row.querySelector('[data-field="qty"]');
-    const priceInput = row.querySelector('[data-field="price"]');
-    const qty = qtyInput ? qtyInput.value.trim() : "";
-    const price = priceInput ? (parseFloat(priceInput.value) || 0) : 0;
+    const qty = row.querySelector('[data-field="qty"]')?.value.trim();
+    const price = parseFloat(row.querySelector('[data-field="price"]')?.value) || 0;
     if (qty) tiers.push({ qty, price });
   });
   return tiers;
 }
 
-// Save product — persist new images to IndexedDB, store only ids on product
 async function saveProduct() {
   const name = document.getElementById("editName").value.trim();
   if (!name) { showToast("⚠️ Nom obligatoire"); return; }
   const tiers = getTiersFromDOM();
   if (!tiers.length) { showToast("⚠️ Ajoute au moins un palier"); return; }
 
-  document.getElementById("editSaveBtn").textContent = "⏳ SAUVEGARDE...";
-  document.getElementById("editSaveBtn").disabled = true;
+  const btn = document.getElementById("editSaveBtn");
+  btn.textContent = "⏳ SAUVEGARDE..."; btn.disabled = true;
 
   try {
-    // Save any new images to IndexedDB and get their ids
-    const mediaIds = [];
+    // Upload new images to Supabase Storage
+    const mediaUrls = [];
     for (const m of editMedias) {
       if (m.isNew && m.data) {
-        // New image: save to DB
-        const newId = await saveMediaToDB(m.data);
-        imageCache[newId] = m.data;
-        mediaIds.push(newId);
-      } else if (m.id && !m.isNew) {
-        // Existing image: keep its id
-        mediaIds.push(m.id);
+        const filename = `product_${Date.now()}_${Math.random().toString(36).slice(2,7)}.jpg`;
+        const url = await uploadImage(m.data, filename);
+        mediaUrls.push(url);
+      } else if (!m.isNew && m.url) {
+        mediaUrls.push(m.url);
       }
     }
 
-    // Find ids that were removed (existed before, not in new list)
+    // Delete removed images
     if (editingId) {
       const oldP = PRODUCTS.find(p => p.id === editingId);
-      const oldIds = oldP ? (oldP.mediaIds || []) : [];
-      const removedIds = oldIds.filter(id => !mediaIds.includes(id));
-      for (const rid of removedIds) {
-        delete imageCache[rid];
-        await deleteMediaFromDB(rid).catch(() => {});
-      }
+      const oldUrls = oldP ? (oldP.media_urls || []) : [];
+      const removedUrls = oldUrls.filter(u => !mediaUrls.includes(u));
+      for (const u of removedUrls) await deleteImage(u);
     }
 
     const data = {
       name,
       sub: document.getElementById("editSub").value.trim(),
-      desc: document.getElementById("editDesc").value.trim(),
+      description: document.getElementById("editDesc").value.trim(),
       emoji: document.getElementById("editEmoji").value.trim() || "🌿",
       cat: document.getElementById("editCat").value,
       badge: document.getElementById("editBadge").value,
-      mediaIds,
+      media_urls: mediaUrls,
       tiers
     };
 
     if (editingId) {
+      const updated = await updateProduct(editingId, data);
       const idx = PRODUCTS.findIndex(p => p.id === editingId);
       if (idx !== -1) PRODUCTS[idx] = { ...PRODUCTS[idx], ...data };
       showToast("✅ Produit modifié !");
     } else {
-      const newId = Math.max(0, ...PRODUCTS.map(p => p.id)) + 1;
-      PRODUCTS.push({ id: newId, ...data });
+      const created = await insertProduct(data);
+      if (created) PRODUCTS.push(created);
       showToast("✅ Produit ajouté !");
     }
 
-    await saveProductsToDB(PRODUCTS);
     closeEditModal();
     renderAdminList();
     renderProducts();
   } catch(e) {
     console.error("Save error:", e);
-    showToast("❌ Erreur de sauvegarde");
+    showToast("❌ Erreur : " + e.message);
   } finally {
-    document.getElementById("editSaveBtn").textContent = "✅ SAUVEGARDER";
-    document.getElementById("editSaveBtn").disabled = false;
+    btn.textContent = "✅ SAUVEGARDER"; btn.disabled = false;
   }
 }
 
@@ -1170,9 +1113,6 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove("show"), 2200);
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// START
-// ═══════════════════════════════════════════════════════════════════
 init();
 </script>
 </body>
